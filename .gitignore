@@ -1,0 +1,34 @@
+# Crear .gitignore en la raíz
+cat > .gitignore << 'EOF'
+# Dependencias
+**/node_modules/
+**/.pnp
+**/.pnp.js
+
+# Archivos de build
+**/dist/
+**/build/
+
+# Archivos de Angular
+**/.angular/
+**/.vscode/
+
+# Archivos de entorno
+**/.env
+**/.env.local
+**/.env.production
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de IDE
+*.swp
+*.swo
+*.sess
+
+# Logs
+**/logs/
+**/npm-debug.log
+**/yarn-error.log
+EOF
