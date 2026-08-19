@@ -1,9 +1,32 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ProductoService, Producto } from '../../servicios/producto.service';
 
 @Component({
   selector: 'app-catalogo',
-  imports: [],
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './catalogo.html',
-  styleUrl: './catalogo.css',
+  styleUrls: ['./catalogo.css']
 })
-export class Catalogo {}
+export class Catalogo implements OnInit {
+  productos: Producto[] = [];
+  cargando = true;
+  error = '';
+
+  constructor(private productoService: ProductoService) { }
+
+  ngOnInit(): void {
+    this.productoService.getProductos().subscribe({
+      next: (data) => {
+        this.productos = data;
+        this.cargando = false;
+      },
+      error: (err) => {
+        this.error = 'Error al cargar los productos. Intenta nuevamente.';
+        this.cargando = false;
+        console.error('Error:', err);
+      }
+    });
+  }
+}

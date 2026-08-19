@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
 @Component({
-  selector: 'app-encabezado',
+  selector: 'app-encabezado',  // ← Mantén esto como está
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './encabezado.componente.html',

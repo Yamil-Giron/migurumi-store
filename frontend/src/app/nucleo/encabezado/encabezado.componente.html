@@ -1,30 +1,29 @@
-<encabezado>
-  <div class="encabezado-container">
-    <!-- Logo -->
-    <a routerLink="/" class="logo">
-      <img src="assets/logo-migurumi.png" alt="Migurumi Store" />
-    </a>
+<!-- ✅ BIEN: no necesitas envolver en etiquetas extra -->
+<div class="encabezado-container">
+  <!-- Logo -->
+  <a routerLink="/" class="logo">
+    <img src="assets/logo-migurumi.png" alt="Migurumi Store" />
+  </a>
 
-    <!-- Menú de navegación -->
-    <nav class="nav-menu">
-      <a routerLink="/">Inicio</a>
-      <a routerLink="/tienda">Tienda</a>
-      <a routerLink="/nosotros">Sobre nosotros</a>
-      <a routerLink="/contacto">Contacto</a>
-    </nav>
+  <!-- Menú de navegación -->
+<nav class="nav-menu">
+  <a routerLink="/">Inicio</a>
+  <a routerLink="/tienda">Tienda</a>
+  <a routerLink="/nosotros">Sobre nosotros</a>
+  <a routerLink="/contacto">Contacto</a>
+</nav>
 
-    <!-- Barra de búsqueda (opcional por ahora) -->
-    <div class="search-bar">
-      <input type="text" placeholder="Buscar productos..." />
-      <button>🔍</button>
-    </div>
-
-    <!-- Carrito y cuenta -->
-    <div class="user-actions">
-      <a routerLink="/carrito" class="cart-icon">
-        🛒 <span class="cart-count">0</span>
-      </a>
-      <a routerLink="/login" class="login-link">Iniciar sesión</a>
-    </div>
+  <!-- Barra de búsqueda -->
+  <div class="search-bar">
+    <input type="text" placeholder="Buscar productos..." />
+    <button>🔍</button>
   </div>
-</encabezado>
+
+  <!-- Carrito y cuenta -->
+  <div class="user-actions">
+    <a routerLink="/carrito" class="cart-icon">
+      🛒 <span class="cart-count">0</span>
+    </a>
+    <a routerLink="/login" class="login-link">Iniciar sesión</a>
+  </div>
+</div>

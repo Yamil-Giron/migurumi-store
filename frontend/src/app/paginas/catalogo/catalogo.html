@@ -1,1 +1,25 @@
-<p>catalogo works!</p>
+<div class="catalogo-container">
+  <h1>Nuestros Amigurumis</h1>
+  <p>Descubre nuestra colección de amigurumis tejidos a crochet</p>
+
+  <!-- Estado de carga -->
+  <div *ngIf="cargando" class="loading">
+    <p>Cargando productos...</p>
+  </div>
+
+  <!-- Mensaje de error -->
+  <div *ngIf="error" class="error-message">
+    <p>{{ error }}</p>
+  </div>
+
+  <!-- Grid de productos -->
+  <div *ngIf="!cargando && !error" class="productos-grid">
+    <div *ngFor="let producto of productos" class="producto-card">
+      <img [src]="producto.imagenUrl" [alt]="producto.nombre" />
+      <h3>{{ producto.nombre }}</h3>
+      <p>{{ producto.descripcion | slice:0:100 }}...</p>
+      <p class="precio">${{ producto.precio }}</p>
+      <button (click)="agregarAlCarrito(producto)">Agregar al carrito</button>
+    </div>
+  </div>
+</div>
