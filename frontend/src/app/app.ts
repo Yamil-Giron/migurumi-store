@@ -1,9 +1,12 @@
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { EncabezadoComponente } from './nucleo/encaezado/encabezado.componente';
+import { piepaginaComponente } from './nucleo/piepagina/piepagina.componente';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  standalone: true,
+  imports: [RouterOutlet, HencabezadoComponente, PiepaginaComponente],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
