@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
 @Component({
-  selector: 'app-piepagina',  // ← Asegúrate que coincida con app.html
+  selector: 'app-piepagina',
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './piepagina.componente.html',
