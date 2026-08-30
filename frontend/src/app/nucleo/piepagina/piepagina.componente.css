@@ -1,0 +1,82 @@
+/* src/app/nucleo/piepagina/piepagina.componente.css */
+
+.piepagina-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  background-color: #4A3A2B;
+  color: #FFFDF7;
+  padding: 2rem 2.5rem;
+  border-top: 4px solid #F7C35C;
+}
+
+.piepagina-container h4 {
+  color: #F7C35C;
+  font-size: 1.1rem;
+  margin-bottom: 0.8rem;
+  letter-spacing: 0.5px;
+}
+
+.footer-links,
+.footer-contact,
+.footer-social {
+  flex: 1 1 180px;
+  margin-bottom: 1.5rem;
+}
+
+.footer-links a,
+.footer-social a {
+  display: block;
+  color: #ddd;
+  text-decoration: none;
+  margin-bottom: 0.4rem;
+  font-size: 0.95rem;
+  transition: color 0.2s;
+}
+
+.footer-links a:hover,
+.footer-social a:hover {
+  color: #F7C35C;
+}
+
+.footer-contact p {
+  margin: 0.3rem 0;
+  font-size: 0.95rem;
+  color: #ddd;
+}
+
+.footer-social a {
+  display: inline-block;
+  margin-right: 1rem;
+}
+
+.footer-copy {
+  background-color: #3a2d22;
+  color: #bbb;
+  text-align: center;
+  padding: 0.8rem;
+  font-size: 0.9rem;
+  border-top: 1px solid #5a4a3b;
+}
+
+.footer-copy p {
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .piepagina-container {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 1.5rem;
+  }
+  .footer-links,
+  .footer-contact,
+  .footer-social {
+    flex: 1 1 100%;
+  }
+  .footer-social a {
+    margin: 0 0.5rem;
+  }
+}
