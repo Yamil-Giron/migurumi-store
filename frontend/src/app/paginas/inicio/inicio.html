@@ -1,4 +1,15 @@
-<div>
-    <h1>Bienvenido a Nuestra Tienda</h1>
-    <p>Explora nuestros productos destacados.</p>
+<div style="padding: 2rem;">
+  <h1>Prueba de conexión</h1>
+
+  <p *ngIf="cargando">Cargando productos...</p>
+  <p *ngIf="error" style="color: red;">{{ error }}</p>
+
+  <div *ngIf="!cargando && !error">
+    <p>Total de productos: {{ productos.length }}</p>
+    <ul>
+      <li *ngFor="let p of productos">
+        <strong>{{ p.nombre }}</strong> — ${{ p.precio }} — Stock: {{ p.stock }}
+      </li>
+    </ul>
+  </div>
 </div>

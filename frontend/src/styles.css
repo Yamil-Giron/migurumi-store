@@ -1,21 +1,202 @@
-/* You can add global styles to this file, and also import other style files */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+/* ============================================================
+   MIGURUMI STORE - ESTILOS GLOBALES
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Poppins:wght@300;400;500;600;700&display=swap');
 
 :root {
-  --color-primary: #F7C35C;   /* Amarillo del logo */
-  --color-secondary: #4A3A2B; /* Marrón oscuro */
-  --color-bg: #FFFDF7;
-  --color-text: #2D2D2D;
-  --font-main: 'Segoe UI', sans-serif;
+  /* Paleta de colores */
+  --color-marron: #3c1213;        /* texto principal */
+  --color-rosa: #f5a1b8;           /* acento fuerte */
+  --color-rosa-claro: #f0c3bf;     /* acento suave */
+  --color-crema: #fcf3f2;          /* fondo cálido */
+  --color-blanco: #ffffff;         /* fondo principal */
+  --color-texto: #3c1213;
+  --color-texto-suave: #6b4a4a;
+  --color-gris: #f8f5f5;
+
+  /* Tipografías */
+  --font-titulo: 'DM Serif Display', serif;
+  --font-texto: 'Poppins', sans-serif;
+
+  /* Sombras rosadas (más sutiles) */
+  --sombra-suave: 0 4px 12px rgba(245, 161, 184, 0.15);
+  --sombra-media: 0 6px 20px rgba(245, 161, 184, 0.22);
+  --sombra-fuerte: 0 10px 30px rgba(245, 161, 184, 0.28);
+
+  /* Bordes */
+  --radio-suave: 8px;
+  --radio-medio: 16px;
+  --radio-grande: 24px;
+  --radio-pildora: 999px;
+}
+
+/* Reset básico */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  font-family: var(--font-main);
-  background-color: var(--color-bg);
-  color: var(--color-text);
+  font-family: var(--font-texto);
+  font-weight: 400;
+  color: var(--color-texto);
+  background-color: var(--color-crema);
   line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Tipografía */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-titulo);
+  color: var(--color-marron);
+  line-height: 1.2;
+  margin-bottom: 0.5em;
+}
+
+h1 { font-size: clamp(2rem, 5vw, 3.5rem); }
+h2 { font-size: clamp(1.75rem, 4vw, 2.5rem); }
+h3 { font-size: clamp(1.25rem, 3vw, 1.75rem); }
+h4 { font-size: 1.25rem; }
+
+p {
+  font-family: var(--font-texto);
+  color: var(--color-texto-suave);
+  line-height: 1.7;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--color-rosa);
+}
+
+/* Botones */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  font-family: var(--font-texto);
+  font-weight: 500;
+  font-size: 0.95rem;
+  border: none;
+  border-radius: var(--radio-pildora);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-decoration: none;
+  line-height: 1;
+}
+
+.btn-primario {
+  background-color: var(--color-rosa);
+  color: var(--color-blanco);
+}
+
+.btn-primario:hover {
+  background-color: #e88aa3;
+  color: var(--color-blanco);
+  transform: translateY(-2px);
+  box-shadow: var(--sombra-media);
+}
+
+.btn-rosa {
+  background-color: var(--color-rosa-claro);
+  color: var(--color-marron);
+}
+
+.btn-rosa:hover {
+  background-color: var(--color-rosa);
+  color: var(--color-blanco);
+  transform: translateY(-2px);
+  box-shadow: var(--sombra-media);
+}
+
+.btn-outline {
+  background-color: transparent;
+  color: var(--color-marron);
+  border: 2px solid var(--color-marron);
+}
+
+.btn-outline:hover {
+  background-color: var(--color-marron);
+  color: var(--color-crema);
+}
+
+/* Contenedor */
+.contenedor {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* Inputs */
+input, textarea, select {
+  font-family: var(--font-texto);
+  font-size: 1rem;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid var(--color-rosa-claro);
+  border-radius: var(--radio-suave);
+  background-color: var(--color-blanco);
+  color: var(--color-texto);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  width: 100%;
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--color-rosa);
+  box-shadow: 0 0 0 3px rgba(245, 161, 184, 0.2);
+}
+
+/* Utilidades */
+.text-center { text-align: center; }
+.mt-1 { margin-top: 0.5rem; }
+.mt-2 { margin-top: 1rem; }
+.mt-3 { margin-top: 1.5rem; }
+.mt-4 { margin-top: 2rem; }
+.mb-1 { margin-bottom: 0.5rem; }
+.mb-2 { margin-bottom: 1rem; }
+.mb-3 { margin-bottom: 1.5rem; }
+.mb-4 { margin-bottom: 2rem; }
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-crema);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-rosa-claro);
+  border-radius: var(--radio-pildora);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-rosa);
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.4s ease-out;
 }
