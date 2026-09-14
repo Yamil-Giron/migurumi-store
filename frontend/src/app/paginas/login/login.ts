@@ -1,9 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
-import { HttpErrorResponse } from '@angular/common/http';
-import { AuthService } from '../../servicios/auth.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-login',
@@ -13,8 +12,9 @@ import { AuthService } from '../../servicios/auth.service';
   styleUrls: ['./login.css'],
 })
 export class Login {
-  private auth = inject(AuthService);
+  private http = inject(HttpClient);
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
 
   email = '';
   contrasena = '';
@@ -28,29 +28,30 @@ export class Login {
 
     if (!this.email || !this.contrasena) {
       this.error = 'Email y contraseña son requeridos';
+      this.cdr.detectChanges();
       return;
     }
 
     this.cargando = true;
 
-    this.auth
-      .login({ email: this.email, contraseña: this.contrasena })
+    this.http
+      .post<any>('http://localhost:3000/api/auth/login', {
+        email: this.email,
+        contraseña: this.contrasena,
+      })
       .subscribe({
         next: (res) => {
           this.cargando = false;
           this.exito = `¡Bienvenido, ${res.usuario.nombre}!`;
+          localStorage.setItem('migurumi_token', res.token);
+          localStorage.setItem('migurumi_usuario', JSON.stringify(res.usuario));
+          this.cdr.detectChanges();
           setTimeout(() => this.router.navigate(['/']), 1000);
         },
-        error: (err: HttpErrorResponse) => {
+        error: (err) => {
           this.cargando = false;
-
-          if (err.status === 0) {
-            this.error = 'No se puede conectar con el servidor.';
-          } else if (err.status === 400) {
-            this.error = err.error?.error || 'Credenciales inválidas';
-          } else {
-            this.error = err.error?.error || `Error ${err.status}`;
-          }
+          this.error = err?.error?.error || 'Credenciales inválidas';
+          this.cdr.detectChanges();
         },
       });
   }

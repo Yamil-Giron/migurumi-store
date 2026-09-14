@@ -1,15 +1,218 @@
-<div style="padding: 2rem;">
-  <h1>Prueba de conexión</h1>
-
-  <p *ngIf="cargando">Cargando productos...</p>
-  <p *ngIf="error" style="color: red;">{{ error }}</p>
-
-  <div *ngIf="!cargando && !error">
-    <p>Total de productos: {{ productos.length }}</p>
-    <ul>
-      <li *ngFor="let p of productos">
-        <strong>{{ p.nombre }}</strong> — ${{ p.precio }} — Stock: {{ p.stock }}
-      </li>
-    </ul>
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="hero-contenedor">
+    <div class="hero-texto">
+      <h1>
+        Amigurumis<br>
+        tejidos a mano<br>
+        con amor <span class="corazon">♥</span>
+      </h1>
+      <p class="hero-descripcion">
+        Peluches únicos y adorables hechos a crochet con dedicación y mucho cariño.
+      </p>
+      <div class="hero-botones">
+        <a routerLink="/tienda" class="btn btn-primario">
+          Ver catálogo <span class="icono-boton">♥</span>
+        </a>
+        <a routerLink="/contacto" class="btn btn-outline">
+          Pedidos personalizados <span class="icono-boton">🧶</span>
+        </a>
+      </div>
+    </div>
+    <div class="hero-ilustracion">
+      <div class="hero-circulo"></div>
+      <svg class="hero-conejo" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="110" cy="60" rx="14" ry="40" fill="#fcf3f2" stroke="#3c1213" stroke-width="3"/>
+        <ellipse cx="110" cy="60" rx="7" ry="25" fill="#f5a1b8"/>
+        <ellipse cx="170" cy="60" rx="14" ry="40" fill="#fcf3f2" stroke="#3c1213" stroke-width="3"/>
+        <ellipse cx="170" cy="60" rx="7" ry="25" fill="#f5a1b8"/>
+        <circle cx="140" cy="160" r="60" fill="#fcf3f2" stroke="#3c1213" stroke-width="3"/>
+        <circle cx="120" cy="150" r="5" fill="#3c1213"/>
+        <circle cx="160" cy="150" r="5" fill="#3c1213"/>
+        <circle cx="115" cy="175" r="8" fill="#f5a1b8" opacity="0.8"/>
+        <circle cx="165" cy="175" r="8" fill="#f5a1b8" opacity="0.8"/>
+        <ellipse cx="140" cy="165" rx="4" ry="3" fill="#3c1213"/>
+        <path d="M140 168 Q135 175 130 172 M140 168 Q145 175 150 172" stroke="#3c1213" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <ellipse cx="140" cy="240" rx="55" ry="45" fill="#fcf3f2" stroke="#3c1213" stroke-width="3"/>
+        <path d="M140 215 C 130 205, 115 220, 140 240 C 165 220, 150 205, 140 215 Z" fill="#f5a1b8" stroke="#3c1213" stroke-width="2"/>
+      </svg>
+    </div>
   </div>
-</div>
+</section>
+
+<!-- ============ PRODUCTOS DESTACADOS ============ -->
+<section class="seccion-productos">
+  <div class="contenedor">
+    <div class="titulo-seccion">
+      <span class="adorno">♥</span>
+      <h2>Nuestros productos</h2>
+      <span class="adorno">♥</span>
+    </div>
+
+    <div *ngIf="cargando" class="estado-mensaje">
+      <p>Cargando productos...</p>
+    </div>
+
+    <div *ngIf="error" class="estado-mensaje error">
+      <p>{{ error }}</p>
+    </div>
+
+    <div *ngIf="!cargando && !error" class="grid-productos">
+      <article class="card-producto fade-in" *ngFor="let producto of productosDestacados">
+        <a [routerLink]="['/producto', producto.slug]" class="card-imagen">
+          <img
+            [src]="producto.imagenesUrl?.[0] || 'assets/placeholder.png'"
+            [alt]="producto.nombre"
+            (error)="producto.imagenesUrl = ['assets/placeholder.png']"
+          />
+          <span class="badge-categoria" *ngIf="getCategoriaNombre(producto)">
+            {{ getCategoriaNombre(producto) }}
+          </span>
+        </a>
+        <div class="card-info">
+          <h3>{{ producto.nombre }}</h3>
+          <p class="card-especificacion" *ngIf="producto.especificaciones?.altura">
+            {{ producto.especificaciones?.altura }} aprox.
+          </p>
+          <p class="card-precio">
+            ${{ producto.precio | number:'1.0-0' }}
+          </p>
+          <a [routerLink]="['/producto', producto.slug]" class="btn btn-primario btn-card">
+            Comprar <span class="icono-boton">🛒</span>
+          </a>
+        </div>
+      </article>
+    </div>
+
+    <div *ngIf="!cargando && !error && productosDestacados.length === 0" class="estado-mensaje">
+      <p>Pronto tendremos nuevos productos disponibles ✨</p>
+    </div>
+
+    <div class="ver-todos" *ngIf="productosDestacados.length > 0">
+      <a routerLink="/tienda" class="btn btn-outline">Ver todos los productos →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PEDIDOS PERSONALIZADOS ============ -->
+<section class="seccion-personalizados">
+  <div class="contenedor">
+    <div class="titulo-seccion">
+      <span class="adorno">♥</span>
+      <h2>Pedidos personalizados</h2>
+      <span class="adorno">♥</span>
+    </div>
+
+    <div class="pasos">
+      <div class="paso">
+        <div class="paso-circulo">
+          <svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="30" cy="30" r="28" fill="#fcf3f2" stroke="#f5a1b8" stroke-width="2"/>
+            <path d="M20 30 Q25 20 30 30 Q35 40 40 30" stroke="#3c1213" stroke-width="2" fill="none"/>
+            <circle cx="20" cy="30" r="3" fill="#f5a1b8"/>
+          </svg>
+        </div>
+        <h3>1. Envías tu idea</h3>
+        <p>Cuéntanos cómo imaginas tu amigurumi ideal.</p>
+      </div>
+
+      <div class="flecha">→</div>
+
+      <div class="paso">
+        <div class="paso-circulo">
+          <svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="30" cy="30" r="28" fill="#fcf3f2" stroke="#f5a1b8" stroke-width="2"/>
+            <path d="M22 38 L38 22 M22 38 L30 42 L22 46 Z" stroke="#3c1213" stroke-width="2" fill="none" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3>2. Lo tejemos con amor</h3>
+        <p>Creamos tu amigurumi único y especial.</p>
+      </div>
+
+      <div class="flecha">→</div>
+
+      <div class="paso">
+        <div class="paso-circulo">
+          <svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="30" cy="30" r="28" fill="#fcf3f2" stroke="#f5a1b8" stroke-width="2"/>
+            <rect x="20" y="22" width="20" height="20" rx="3" stroke="#3c1213" stroke-width="2" fill="none"/>
+            <path d="M20 28 L30 34 L40 28" stroke="#3c1213" stroke-width="2" fill="none"/>
+          </svg>
+        </div>
+        <h3>3. Lo recibes en casa</h3>
+        <p>Lo enviamos a tu puerta para que lo disfrutes.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ GALERÍA DE CLIENTES ============ -->
+<section class="seccion-galeria">
+  <div class="contenedor">
+    <div class="titulo-seccion">
+      <span class="adorno">♥</span>
+      <h2>Galería de clientes</h2>
+      <span class="adorno">♥</span>
+    </div>
+
+    <div class="galeria-grid">
+      <div class="galeria-item" *ngFor="let item of galeriaClientes">
+        <img
+          [src]="item.img"
+          [alt]="item.nombre"
+          (error)="item.img = 'assets/placeholder.png'"
+        />
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SOBRE MIGURUMI ============ -->
+<section class="seccion-sobre">
+  <div class="contenedor">
+    <div class="sobre-card">
+      <div class="sobre-ilustracion">
+        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="80" cy="40" rx="10" ry="28" fill="#fcf3f2" stroke="#3c1213" stroke-width="2.5"/>
+          <ellipse cx="80" cy="40" rx="5" ry="16" fill="#f5a1b8"/>
+          <ellipse cx="120" cy="40" rx="10" ry="28" fill="#fcf3f2" stroke="#3c1213" stroke-width="2.5"/>
+          <ellipse cx="120" cy="40" rx="5" ry="16" fill="#f5a1b8"/>
+          <circle cx="100" cy="110" r="42" fill="#fcf3f2" stroke="#3c1213" stroke-width="2.5"/>
+          <circle cx="86" cy="105" r="4" fill="#3c1213"/>
+          <circle cx="114" cy="105" r="4" fill="#3c1213"/>
+          <circle cx="80" cy="120" r="6" fill="#f5a1b8" opacity="0.8"/>
+          <circle cx="120" cy="120" r="6" fill="#f5a1b8" opacity="0.8"/>
+          <path d="M100 115 Q95 122 90 119 M100 115 Q105 122 110 119" stroke="#3c1213" stroke-width="2" fill="none" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="sobre-texto">
+        <h2>Sobre Migurumi Store</h2>
+        <p>
+          Migurumi Store nació del amor por el crochet y los amigurumis. Cada pieza está hecha a mano con dedicación, cuidando cada detalle para crear recuerdos únicos.
+        </p>
+        <p>
+          ¡Gracias por apoyar lo hecho a mano!
+        </p>
+
+        <div class="sobre-features">
+          <div class="feature">
+            <div class="feature-icono">♥</div>
+            <span>Hechos a mano con amor</span>
+          </div>
+          <div class="feature">
+            <div class="feature-icono">🧶</div>
+            <span>Materiales de alta calidad</span>
+          </div>
+          <div class="feature">
+            <div class="feature-icono">📦</div>
+            <span>Envíos seguros a todo el país</span>
+          </div>
+        </div>
+
+        <a routerLink="/nosotros" class="btn btn-primario mt-3">
+          Conócenos más <span class="icono-boton">♥</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
