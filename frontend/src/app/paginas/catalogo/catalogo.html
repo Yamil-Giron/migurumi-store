@@ -15,7 +15,7 @@
   <!-- Grid de productos -->
   <div *ngIf="!cargando && !error" class="productos-grid">
     <div *ngFor="let producto of productos" class="producto-card">
-      <img [src]="producto.imagenUrl" [alt]="producto.nombre" />
+      <img [src]="producto.imagenesUrl?.[0] || 'assets/placeholder.png'" [alt]="producto.nombre" />
       <h3>{{ producto.nombre }}</h3>
       <p>{{ producto.descripcion | slice:0:100 }}...</p>
       <p class="precio">${{ producto.precio }}</p>

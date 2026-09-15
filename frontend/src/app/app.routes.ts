@@ -5,13 +5,17 @@ import { Contacto } from './paginas/contacto/contacto';
 import { SobreNosotros } from './paginas/sobre-nosotros/sobre-nosotros';
 import { CarritoDeCompras } from './paginas/carrito-de-compras/carrito-de-compras';
 import { PerfilUsuario } from './paginas/perfil-usuario/perfil-usuario';
+import { Login } from './paginas/login/login';
+import { Registro } from './paginas/registro/registro';
 
 export const routes: Routes = [
-  { path: '', component: Inicio },                // Página principal
-  { path: 'tienda', component: Catalogo },        // Catálogo de productos
-  { path: 'contacto', component: Contacto },      // Página de contacto
-  { path: 'nosotros', component: SobreNosotros }, // Sobre nosotros
-  { path: 'carrito', component: CarritoDeCompras }, // Carrito de compras
-  { path: 'perfil', component: PerfilUsuario },   // Perfil de usuario
-  { path: '**', redirectTo: '' }                 // Ruta comodín (404 → Inicio)
+  { path: '', component: Inicio },
+  { path: 'tienda', component: Catalogo },
+  { path: 'contacto', component: Contacto },
+  { path: 'nosotros', component: SobreNosotros },
+  { path: 'carrito', component: CarritoDeCompras },
+  { path: 'perfil', component: PerfilUsuario },
+  { path: 'login', component: Login },
+  { path: 'registro', component: Registro },
+  { path: '**', redirectTo: '' },
 ];
