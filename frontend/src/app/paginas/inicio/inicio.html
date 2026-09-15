@@ -58,29 +58,12 @@
     </div>
 
     <div *ngIf="!cargando && !error" class="grid-productos">
-      <article class="card-producto fade-in" *ngFor="let producto of productosDestacados">
-        <a [routerLink]="['/producto', producto.slug]" class="card-imagen">
-          <img
-            [src]="producto.imagenesUrl?.[0] || 'assets/placeholder.png'"
-            [alt]="producto.nombre"
-            (error)="producto.imagenesUrl = ['assets/placeholder.png']"
-          />
-          <span class="badge-categoria" *ngIf="getCategoriaNombre(producto)">
-            {{ getCategoriaNombre(producto) }}
-          </span>
-        </a>
-        <div class="card-info">
-          <h3>{{ producto.nombre }}</h3>
-          <p class="card-especificacion" *ngIf="producto.especificaciones?.altura">
-            {{ producto.especificaciones?.altura }} aprox.
-          </p>
-          <p class="card-precio">
-            ${{ producto.precio | number:'1.0-0' }}
-          </p>
-          <a [routerLink]="['/producto', producto.slug]" class="btn btn-primario btn-card">
-            Comprar <span class="icono-boton">🛒</span>
-          </a>
-        </div>
+  <app-producto-card
+    *ngFor="let producto of productosDestacados"
+    [producto]="producto"
+    variante="compacto"
+  ></app-producto-card>
+</div>
       </article>
     </div>
 

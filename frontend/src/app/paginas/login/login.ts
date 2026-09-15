@@ -46,7 +46,7 @@ export class Login {
           localStorage.setItem('migurumi_token', res.token);
           localStorage.setItem('migurumi_usuario', JSON.stringify(res.usuario));
           this.cdr.detectChanges();
-          setTimeout(() => this.router.navigate(['/']), 1000);
+          setTimeout(() => this.router.navigate(['/']), 5000);
         },
         error: (err) => {
           this.cargando = false;

@@ -1,0 +1,36 @@
+<article class="card-producto" [class.compacto]="variante === 'compacto'">
+  <a [routerLink]="['/producto', producto.slug]" class="card-imagen">
+    <img
+      [src]="imagenPortada"
+      [alt]="producto.nombre"
+      (error)="onImagenError($event)"
+    />
+
+    <span class="badge-categoria" *ngIf="categoriaNombre">
+      {{ categoriaNombre }}
+    </span>
+
+    <span class="badge-destacado" *ngIf="producto.destacado">★</span>
+  </a>
+
+  <div class="card-info">
+    <h3 class="card-nombre">{{ producto.nombre }}</h3>
+
+    <p class="card-especificacion" *ngIf="producto.especificaciones?.altura">
+      {{ producto.especificaciones?.altura }} aprox.
+    </p>
+
+    <p class="precio-actual">{{ precioFormateado }}</p>
+
+    <button
+      *ngIf="mostrarBoton"
+      type="button"
+      class="btn btn-primario btn-card"
+      (click)="agregarAlCarrito($event)"
+      [disabled]="producto.stock <= 0"
+    >
+      <span *ngIf="producto.stock > 0">Comprar 🛒</span>
+      <span *ngIf="producto.stock <= 0">Sin stock</span>
+    </button>
+  </div>
+</article>

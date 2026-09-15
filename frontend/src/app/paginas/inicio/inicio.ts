@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ProductoService } from '../../servicios/producto.service';
 import { Producto } from '../../servicios/producto.model';
+import { ProductoCard } from '../../nucleo/producto-card/producto-card';
 
 @Component({
   selector: 'app-inicio',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, ProductoCard],
   templateUrl: './inicio.html',
   styleUrls: ['./inicio.css'],
 })
