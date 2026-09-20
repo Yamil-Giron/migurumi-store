@@ -26,15 +26,16 @@ export class GestionProductos implements OnInit {
   mostrarFormulario = false;
   editandoId: string | null = null;
 
-  // OJO: los nombres 'categoria' e 'imagen' coinciden con tu HTML actual.
-  // El mapeo a 'categoriaId' e 'imagenesUrl' se hace en guardar().
+  // Los nombres coinciden EXACTAMENTE con los formControlName del HTML
   form: FormGroup = this.fb.group({
     nombre: ['', [Validators.required, Validators.minLength(2)]],
     descripcion: [''],
     precio: [0, [Validators.required, Validators.min(0)]],
-    categoria: ['', Validators.required],
-    imagen: [''],
+    categoriaId: ['', Validators.required],
+    imagenUrl: [''],
     stock: [0, [Validators.min(0)]],
+    activo: [true],
+    destacado: [false],
   });
 
   ngOnInit(): void {
@@ -71,9 +72,11 @@ export class GestionProductos implements OnInit {
       nombre: '',
       descripcion: '',
       precio: 0,
-      categoria: '',
-      imagen: '',
+      categoriaId: '',
+      imagenUrl: '',
       stock: 0,
+      activo: true,
+      destacado: false,
     });
     this.mostrarFormulario = true;
   }
@@ -90,9 +93,11 @@ export class GestionProductos implements OnInit {
       nombre: producto.nombre,
       descripcion: producto.descripcion ?? '',
       precio: producto.precio,
-      categoria: categoriaId,
-      imagen: producto.imagenesUrl?.[0] ?? '',
+      categoriaId: categoriaId,
+      imagenUrl: producto.imagenesUrl?.[0] ?? '',
       stock: producto.stock ?? 0,
+      activo: producto.activo ?? true,
+      destacado: producto.destacado ?? false,
     });
     this.mostrarFormulario = true;
   }
@@ -114,14 +119,15 @@ export class GestionProductos implements OnInit {
 
     const v = this.form.value;
 
-    // Mapeo del form → campos reales del modelo Producto
     const payload: Partial<Producto> = {
       nombre: v.nombre,
       descripcion: v.descripcion || undefined,
       precio: Number(v.precio),
       stock: Number(v.stock),
-      categoriaId: v.categoria,
-      imagenesUrl: v.imagen ? [v.imagen] : [],
+      categoriaId: v.categoriaId,
+      imagenesUrl: v.imagenUrl ? [v.imagenUrl] : [],
+      activo: v.activo,
+      destacado: v.destacado,
     };
 
     const operacion = this.editandoId
@@ -137,7 +143,7 @@ export class GestionProductos implements OnInit {
       },
       error: (err) => {
         console.error('Error al guardar', err);
-        this.error = err?.error?.mensaje ?? 'No se pudo guardar el producto.';
+        this.error = err?.error?.mensaje ?? err?.error?.error ?? 'No se pudo guardar el producto.';
         this.guardando = false;
       },
     });
@@ -151,7 +157,7 @@ export class GestionProductos implements OnInit {
       next: () => this.cargarProductos(),
       error: (err) => {
         console.error('Error al eliminar', err);
-        this.error = err?.error?.mensaje ?? 'No se pudo eliminar el producto.';
+        this.error = err?.error?.mensaje ?? err?.error?.error ?? 'No se pudo eliminar el producto.';
       },
     });
   }
