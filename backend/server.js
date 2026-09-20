@@ -13,6 +13,14 @@ app.use(cors({
 }));
 app.use(express.json());
 
+
+app.use('/api', (req, res, next) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
+  next();
+});
+
 app.use('/api/auth', require('./routes/auth.routes'));
 app.use('/api/categorias', require('./routes/categoria.routes'));
 app.use('/api/productos', require('./routes/producto.routes'));
