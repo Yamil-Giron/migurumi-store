@@ -7,6 +7,8 @@ import { CarritoDeCompras } from './paginas/carrito-de-compras/carrito-de-compra
 import { PerfilUsuario } from './paginas/perfil-usuario/perfil-usuario';
 import { Login } from './paginas/login/login';
 import { Registro } from './paginas/registro/registro';
+import { GestionProductos } from './administracion/gestion-productos/gestion-productos';
+import { adminGuard } from './guards/admin.guard';
 
 export const routes: Routes = [
   { path: '', component: Inicio },
@@ -17,5 +19,10 @@ export const routes: Routes = [
   { path: 'perfil', component: PerfilUsuario },
   { path: 'login', component: Login },
   { path: 'registro', component: Registro },
+  {
+    path: 'admin/gestion-productos',
+    component: GestionProductos,
+    canActivate: [adminGuard],
+  },
   { path: '**', redirectTo: '' },
 ];

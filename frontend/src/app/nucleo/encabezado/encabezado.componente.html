@@ -34,6 +34,14 @@
     <!-- Acciones -->
     <div class="acciones">
 
+      <!-- Panel de administración (solo admins) -->
+      <a *ngIf="auth.esAdmin()" routerLink="/admin/gestion-productos" class="icono-btn admin-btn" 
+        aria-label="Panel de administración" title="Panel de administración">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/>
+      </svg>
+      </a>
+
       <!-- Buscador -->
       <div class="search-bar">
         <input type="text" placeholder="Buscar productos..." />
