@@ -1,12 +1,42 @@
 const Producto = require('../models/Producto');
 const Categoria = require('../models/Categoria');
 
+// Helper: generar slug a partir de un nombre
+const generarSlug = (nombre) => {
+  return nombre
+    .toString()
+    .toLowerCase()
+    .trim()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')   // quita acentos
+    .replace(/[^a-z0-9\s-]/g, '')      // quita caracteres raros
+    .replace(/\s+/g, '-')              // espacios → guiones
+    .replace(/-+/g, '-')               // colapsa guiones múltiples
+    .replace(/^-|-$/g, '');            // quita guiones al inicio/fin
+};
+
+// Helper: generar slug único (agrega -2, -3, ... si ya existe)
+const generarSlugUnico = async (nombre, excluirId = null) => {
+  const base = generarSlug(nombre);
+  let slug = base;
+  let contador = 2;
+
+  while (true) {
+    const filtro = { slug };
+    if (excluirId) filtro._id = { $ne: excluirId };
+    const existente = await Producto.findOne(filtro);
+    if (!existente) return slug;
+    slug = `${base}-${contador}`;
+    contador++;
+  }
+};
+
 // POST /api/productos (admin)
 exports.crearProducto = async (req, res) => {
   try {
     const {
       nombre,
-      slug,
+      slug,           // opcional: si no viene, se genera
       descripcion,
       categoriaId,
       precio,
@@ -20,8 +50,11 @@ exports.crearProducto = async (req, res) => {
       vendedor,
     } = req.body;
 
-    if (!nombre || !slug || !categoriaId || precio === undefined) {
-      return res.status(400).json({ error: 'Nombre, slug, categoriaId y precio son requeridos' });
+    // Validación: solo lo realmente requerido
+    if (!nombre || !categoriaId || precio === undefined) {
+      return res.status(400).json({
+        error: 'Nombre, categoriaId y precio son requeridos',
+      });
     }
 
     // Verificar que la categoría exista
@@ -30,15 +63,14 @@ exports.crearProducto = async (req, res) => {
       return res.status(400).json({ error: 'La categoría especificada no existe' });
     }
 
-    // Verificar slug único
-    const slugExiste = await Producto.findOne({ slug });
-    if (slugExiste) {
-      return res.status(400).json({ error: 'Ya existe un producto con ese slug' });
-    }
+    // Slug: usar el que vino o generar uno único
+    const slugFinal = slug
+      ? await generarSlugUnico(slug)
+      : await generarSlugUnico(nombre);
 
     const producto = new Producto({
       nombre,
-      slug,
+      slug: slugFinal,
       descripcion,
       categoriaId,
       precio,
@@ -69,7 +101,6 @@ exports.obtenerProductos = async (req, res) => {
     const { categoria, buscar, destacado, precioMin, precioMax, orden } = req.query;
     const filtro = {};
 
-    // Solo mostrar activos si no es admin
     if (!req.user || req.user.rol !== 'administrador') {
       filtro.activo = true;
     }
@@ -88,7 +119,6 @@ exports.obtenerProductos = async (req, res) => {
       ];
     }
 
-    // Ordenamiento
     let sort = { fechaCreacion: -1 };
     if (orden === 'precio_asc') sort = { precio: 1 };
     else if (orden === 'precio_desc') sort = { precio: -1 };
@@ -129,9 +159,18 @@ exports.obtenerProductoPorId = async (req, res) => {
 // PUT /api/productos/:id (admin)
 exports.actualizarProducto = async (req, res) => {
   try {
+    const datos = { ...req.body };
+
+    // Si viene un slug nuevo, o cambió el nombre sin mandar slug, regenerar
+    if (datos.slug) {
+      datos.slug = await generarSlugUnico(datos.slug, req.params.id);
+    } else if (datos.nombre) {
+      datos.slug = await generarSlugUnico(datos.nombre, req.params.id);
+    }
+
     const producto = await Producto.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      datos,
       { new: true, runValidators: true }
     ).populate('categoriaId', 'nombre slug');
 
