@@ -54,3 +54,93 @@ button {
 button:hover {
   background-color: #e6b04a;
 }
+
+/* ===== Buscador ===== */
+.buscador {
+  display: flex;
+  gap: 8px;
+  margin: 32px auto;
+  max-width: 560px;
+  padding: 0 16px;
+}
+
+.buscador input {
+  flex: 1;
+  padding: 14px 18px;
+  border: 1px solid #e5d5d5;
+  border-radius: 10px;
+  font-size: 15px;
+  background: #fff;
+  color: #3c1213;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.buscador input::placeholder {
+  color: #b5a5a5;
+}
+
+.buscador input:focus {
+  outline: none;
+  border-color: #f5a1b8;
+  box-shadow: 0 0 0 3px rgba(245, 161, 184, 0.15);
+}
+
+.buscador button {
+  padding: 0 18px;
+  background: #f5e8e8;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 15px;
+  color: #3c1213;
+  transition: background 0.2s;
+}
+
+.buscador button:hover {
+  background: #e8d5d5;
+}
+
+/* ===== Sin resultados ===== */
+.sin-resultados {
+  text-align: center;
+  padding: 64px 16px;
+  color: #8a7a7a;
+}
+
+.sin-resultados p {
+  font-size: 16px;
+  margin-bottom: 16px;
+}
+
+.sin-resultados button {
+  padding: 12px 24px;
+  background: #f5a1b8;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.sin-resultados button:hover {
+  background: #e089a3;
+}
+
+/* ===== Categoría en la card ===== */
+.producto-card .categoria {
+  font-size: 12px;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin: 4px 0;
+  font-weight: 600;
+}
+
+.producto-card .descripcion {
+  font-size: 13px;
+  color: #6b5b5b;
+  line-height: 1.4;
+  margin: 8px 0;
+}

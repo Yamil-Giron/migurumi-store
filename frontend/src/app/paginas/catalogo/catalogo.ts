@@ -16,8 +16,8 @@ export class Catalogo implements OnInit {
   private productoService = inject(ProductoService);
   private carritoService = inject(CarritoService);
 
-  productos: Producto[] = [];
-  productosFiltrados: Producto[] = [];
+  productos: Producto[] = [];           // todos los productos del backend
+  productosFiltrados: Producto[] = [];  // los que se muestran (filtrados por búsqueda)
   cargando = true;
   error = '';
   terminoBusqueda = '';

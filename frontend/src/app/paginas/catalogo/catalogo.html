@@ -2,6 +2,25 @@
   <h1>Nuestros Amigurumis</h1>
   <p>Descubre nuestra colección de amigurumis tejidos a crochet</p>
 
+  <!-- Buscador -->
+  <div class="buscador">
+    <input
+      type="text"
+      placeholder="Buscar por nombre, descripción o categoría..."
+      [(ngModel)]="terminoBusqueda"
+      (ngModelChange)="buscar()"
+    />
+    <button
+      *ngIf="terminoBusqueda"
+      type="button"
+      (click)="limpiarBusqueda()"
+      title="Limpiar búsqueda"
+      aria-label="Limpiar búsqueda"
+    >
+      ✕
+    </button>
+  </div>
+
   <!-- Estado de carga -->
   <div *ngIf="cargando" class="loading">
     <p>Cargando productos...</p>
@@ -12,13 +31,23 @@
     <p>{{ error }}</p>
   </div>
 
+  <!-- Sin resultados -->
+  <div *ngIf="!cargando && !error && productosFiltrados.length === 0" class="sin-resultados">
+    <p>No encontramos productos para "{{ terminoBusqueda }}"</p>
+    <button type="button" (click)="limpiarBusqueda()">Ver todos los productos</button>
+  </div>
+
   <!-- Grid de productos -->
-  <div *ngIf="!cargando && !error" class="productos-grid">
-    <div *ngFor="let producto of productos" class="producto-card">
-      <img [src]="producto.imagenesUrl?.[0] || 'assets/placeholder.png'" [alt]="producto.nombre" />
+  <div *ngIf="!cargando && !error && productosFiltrados.length > 0" class="productos-grid">
+    <div *ngFor="let producto of productosFiltrados" class="producto-card">
+      <img
+        [src]="producto.imagenesUrl?.[0] || 'assets/placeholder.png'"
+        [alt]="producto.nombre"
+      />
       <h3>{{ producto.nombre }}</h3>
-      <p>{{ producto.descripcion | slice:0:100 }}...</p>
-      <p class="precio">${{ producto.precio }}</p>
+      <p class="categoria">{{ producto.categoriaId?.nombre || '—' }}</p>
+      <p class="descripcion">{{ producto.descripcion | slice:0:100 }}...</p>
+      <p class="precio">{{ formatearPrecio(producto.precio) }}</p>
       <button (click)="agregarAlCarrito(producto)">Agregar al carrito</button>
     </div>
   </div>
