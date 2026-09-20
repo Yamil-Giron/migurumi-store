@@ -40,9 +40,8 @@ export class Login {
         this.exito = `¡Bienvenido, ${res.usuario.nombre}!`;
         this.cdr.detectChanges();
 
-        // Redirigir según rol
         const destino = this.auth.esAdmin() ? '/admin/gestion-productos' : '/';
-        setTimeout(() => this.router.navigate([destino]), 1000);
+        setTimeout(() => this.router.navigate([destino]), 1200);
       },
       error: (err) => {
         this.cargando = false;
