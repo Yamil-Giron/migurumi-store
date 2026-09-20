@@ -11,11 +11,11 @@ export class CategoriaService {
 
   constructor(private http: HttpClient) {}
 
-  getCategorias(): Observable<Categoria[]> {
-    return this.http
-      .get<RespuestaCategorias>(this.apiUrl)
-      .pipe(map(res => res.categorias));
-  }
+ getCategorias(): Observable<Categoria[]> {
+  return this.http
+    .get<RespuestaCategorias>(this.apiUrl)
+    .pipe(map(res => res.categorias));
+}
 
   getCategoriaPorId(id: string): Observable<Categoria> {
     return this.http
