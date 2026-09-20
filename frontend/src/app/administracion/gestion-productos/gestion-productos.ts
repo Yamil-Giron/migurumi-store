@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ProductoService } from '../../servicios/producto.service';
@@ -18,13 +18,13 @@ export class GestionProductos implements OnInit {
   private categoriaService = inject(CategoriaService);
   private fb = inject(FormBuilder);
 
-  productos: Producto[] = [];
-  categorias: Categoria[] = [];
-  cargando = false;
-  guardando = false;
-  error = '';
-  mostrarFormulario = false;
-  editandoId: string | null = null;
+  productos = signal<Producto[]>([]);
+  categorias = signal<Categoria[]>([]);
+  cargando = signal(false);
+  guardando = signal(false);
+  error = signal('');
+  mostrarFormulario = signal(false);
+  editandoId = signal<string | null>(null);
 
   form: FormGroup = this.fb.group({
     nombre: ['', [Validators.required, Validators.minLength(2)]],
@@ -43,17 +43,17 @@ export class GestionProductos implements OnInit {
   }
 
   cargarProductos(): void {
-    this.cargando = true;
-    this.error = '';
+    this.cargando.set(true);
+    this.error.set('');
     this.productoService.getProductos().subscribe({
       next: (data) => {
-        this.productos = data;
-        this.cargando = false;
+        this.productos.set(data);
+        this.cargando.set(false);
       },
       error: (err) => {
         console.error('Error al cargar productos', err);
-        this.error = 'No se pudieron cargar los productos.';
-        this.cargando = false;
+        this.error.set('No se pudieron cargar los productos.');
+        this.cargando.set(false);
       },
     });
   }
@@ -61,14 +61,14 @@ export class GestionProductos implements OnInit {
   cargarCategorias(): void {
     this.categoriaService.getCategorias().subscribe({
       next: (data) => {
-        this.categorias = data;
+        this.categorias.set(data);
       },
       error: (err) => console.error('Error al cargar categorías', err),
     });
   }
 
   abrirNuevo(): void {
-    this.editandoId = null;
+    this.editandoId.set(null);
     this.form.reset({
       nombre: '',
       descripcion: '',
@@ -79,11 +79,11 @@ export class GestionProductos implements OnInit {
       activo: true,
       destacado: false,
     });
-    this.mostrarFormulario = true;
+    this.mostrarFormulario.set(true);
   }
 
   abrirEditar(producto: Producto): void {
-    this.editandoId = producto._id ?? null;
+    this.editandoId.set(producto._id ?? null);
 
     const categoriaId =
       typeof producto.categoriaId === 'object'
@@ -100,12 +100,12 @@ export class GestionProductos implements OnInit {
       activo: producto.activo ?? true,
       destacado: producto.destacado ?? false,
     });
-    this.mostrarFormulario = true;
+    this.mostrarFormulario.set(true);
   }
 
   cancelar(): void {
-    this.mostrarFormulario = false;
-    this.editandoId = null;
+    this.mostrarFormulario.set(false);
+    this.editandoId.set(null);
     this.form.reset();
   }
 
@@ -115,8 +115,8 @@ export class GestionProductos implements OnInit {
       return;
     }
 
-    this.guardando = true;
-    this.error = '';
+    this.guardando.set(true);
+    this.error.set('');
 
     const v = this.form.value;
 
@@ -131,21 +131,24 @@ export class GestionProductos implements OnInit {
       destacado: v.destacado,
     };
 
-    const operacion = this.editandoId
-      ? this.productoService.actualizarProducto(this.editandoId, payload)
+    const id = this.editandoId();
+    const operacion = id
+      ? this.productoService.actualizarProducto(id, payload)
       : this.productoService.crearProducto(payload);
 
     operacion.subscribe({
       next: () => {
-        this.guardando = false;
-        this.mostrarFormulario = false;
-        this.editandoId = null;
+        this.guardando.set(false);
+        this.mostrarFormulario.set(false);
+        this.editandoId.set(null);
         this.cargarProductos();
       },
       error: (err) => {
         console.error('Error al guardar', err);
-        this.error = err?.error?.mensaje ?? err?.error?.error ?? 'No se pudo guardar el producto.';
-        this.guardando = false;
+        this.error.set(
+          err?.error?.mensaje ?? err?.error?.error ?? 'No se pudo guardar el producto.'
+        );
+        this.guardando.set(false);
       },
     });
   }
@@ -158,7 +161,9 @@ export class GestionProductos implements OnInit {
       next: () => this.cargarProductos(),
       error: (err) => {
         console.error('Error al eliminar', err);
-        this.error = err?.error?.mensaje ?? err?.error?.error ?? 'No se pudo eliminar el producto.';
+        this.error.set(
+          err?.error?.mensaje ?? err?.error?.error ?? 'No se pudo eliminar el producto.'
+        );
       },
     });
   }
@@ -168,7 +173,7 @@ export class GestionProductos implements OnInit {
     if (typeof producto.categoriaId === 'object') {
       return producto.categoriaId.nombre ?? '—';
     }
-    const cat = this.categorias.find((c) => c._id === producto.categoriaId);
+    const cat = this.categorias().find((c) => c._id === producto.categoriaId);
     return cat?.nombre ?? '—';
   }
 

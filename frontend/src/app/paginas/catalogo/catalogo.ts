@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductoService } from '../../servicios/producto.service';
@@ -16,43 +16,43 @@ export class Catalogo implements OnInit {
   private productoService = inject(ProductoService);
   private carritoService = inject(CarritoService);
 
-  productos: Producto[] = [];
-  productosFiltrados: Producto[] = [];
-  cargando = true;
-  error = '';
-  terminoBusqueda = '';
+  productos = signal<Producto[]>([]);
+  productosFiltrados = signal<Producto[]>([]);
+  cargando = signal(true);
+  error = signal('');
+  terminoBusqueda = signal('');
 
   ngOnInit(): void {
     this.cargarProductos();
   }
 
   cargarProductos(): void {
-    this.cargando = true;
-    this.error = '';
+    this.cargando.set(true);
+    this.error.set('');
 
     this.productoService.getProductos().subscribe({
       next: (data: Producto[]) => {
-        this.productos = data;
-        this.productosFiltrados = data;
-        this.cargando = false;
+        this.productos.set(data);
+        this.productosFiltrados.set(data);
+        this.cargando.set(false);
       },
       error: (err: any) => {
         console.error('[Catalogo] Error:', err);
-        this.error = 'Error al cargar los productos. Intenta nuevamente.';
-        this.cargando = false;
+        this.error.set('Error al cargar los productos. Intenta nuevamente.');
+        this.cargando.set(false);
       },
     });
   }
 
   buscar(): void {
-    const termino = this.terminoBusqueda.toLowerCase().trim();
+    const termino = this.terminoBusqueda().toLowerCase().trim();
 
     if (!termino) {
-      this.productosFiltrados = this.productos;
+      this.productosFiltrados.set(this.productos());
       return;
     }
 
-    this.productosFiltrados = this.productos.filter((p) => {
+    const filtrados = this.productos().filter((p) => {
       const nombre = p.nombre?.toLowerCase() ?? '';
       const descripcion = p.descripcion?.toLowerCase() ?? '';
       const categoria =
@@ -66,11 +66,13 @@ export class Catalogo implements OnInit {
         categoria.includes(termino)
       );
     });
+
+    this.productosFiltrados.set(filtrados);
   }
 
   limpiarBusqueda(): void {
-    this.terminoBusqueda = '';
-    this.productosFiltrados = this.productos;
+    this.terminoBusqueda.set('');
+    this.productosFiltrados.set(this.productos());
   }
 
   nombreCategoria(producto: Producto): string {
