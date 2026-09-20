@@ -1,43 +1,76 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ProductoService, Producto } from '../../servicios/producto.service';
+import { FormsModule } from '@angular/forms';
+import { ProductoService } from '../../servicios/producto.service';
+import { Producto } from '../../servicios/producto.model';
 import { CarritoService } from '../../servicios/carrito.service';
 
 @Component({
   selector: 'app-catalogo',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './catalogo.html',
-  styleUrls: ['./catalogo.css']
+  styleUrls: ['./catalogo.css'],
 })
 export class Catalogo implements OnInit {
+  private productoService = inject(ProductoService);
+  private carritoService = inject(CarritoService);
+
   productos: Producto[] = [];
+  productosFiltrados: Producto[] = [];
   cargando = true;
   error = '';
-
-  constructor(
-    private productoService: ProductoService,
-    private carritoService: CarritoService,
-    private cdr: ChangeDetectorRef   // ← NUEVO
-  ) { }
+  terminoBusqueda = '';
 
   ngOnInit(): void {
-    console.log('[Catalogo] ngOnInit ejecutado');
+    this.cargarProductos();
+  }
+
+  cargarProductos(): void {
+    this.cargando = true;
+    this.error = '';
+
     this.productoService.getProductos().subscribe({
       next: (data: Producto[]) => {
-        console.log('[Catalogo] NEXT recibido. Cantidad:', data?.length);
         this.productos = data;
+        this.productosFiltrados = data;
         this.cargando = false;
-        console.log('[Catalogo] cargando =', this.cargando, '| productos =', this.productos.length);
-        this.cdr.detectChanges();   // ← fuerza redibujado inmediato
       },
       error: (err: any) => {
-        console.error('[Catalogo] ERROR:', err);
+        console.error('[Catalogo] Error:', err);
         this.error = 'Error al cargar los productos. Intenta nuevamente.';
         this.cargando = false;
-        this.cdr.detectChanges();
-      }
+      },
     });
+  }
+
+  buscar(): void {
+    const termino = this.terminoBusqueda.toLowerCase().trim();
+
+    if (!termino) {
+      this.productosFiltrados = this.productos;
+      return;
+    }
+
+    this.productosFiltrados = this.productos.filter((p) => {
+      const nombre = p.nombre?.toLowerCase() ?? '';
+      const descripcion = p.descripcion?.toLowerCase() ?? '';
+      const categoria =
+        typeof p.categoriaId === 'object'
+          ? (p.categoriaId?.nombre?.toLowerCase() ?? '')
+          : '';
+
+      return (
+        nombre.includes(termino) ||
+        descripcion.includes(termino) ||
+        categoria.includes(termino)
+      );
+    });
+  }
+
+  limpiarBusqueda(): void {
+    this.terminoBusqueda = '';
+    this.productosFiltrados = this.productos;
   }
 
   agregarAlCarrito(producto: Producto): void {

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ProductoService } from '../../servicios/producto.service';
@@ -17,7 +17,6 @@ export class GestionProductos implements OnInit {
   private productoService = inject(ProductoService);
   private categoriaService = inject(CategoriaService);
   private fb = inject(FormBuilder);
-  private cdr = inject(ChangeDetectorRef); 
 
   productos: Producto[] = [];
   categorias: Categoria[] = [];
@@ -27,7 +26,6 @@ export class GestionProductos implements OnInit {
   mostrarFormulario = false;
   editandoId: string | null = null;
 
-  // Los nombres coinciden EXACTAMENTE con los formControlName del HTML
   form: FormGroup = this.fb.group({
     nombre: ['', [Validators.required, Validators.minLength(2)]],
     descripcion: [''],
@@ -45,32 +43,29 @@ export class GestionProductos implements OnInit {
   }
 
   cargarProductos(): void {
-  this.cargando = true;
-  this.error = '';
-  this.productoService.getProductos().subscribe({
-    next: (data) => {
-      this.productos = data;
-      this.cargando = false;
-      this.cdr.detectChanges();   // ← fuerza redibujado
-    },
-    error: (err) => {
-      console.error('Error al cargar productos', err);
-      this.error = 'No se pudieron cargar los productos.';
-      this.cargando = false;
-      this.cdr.detectChanges();
-    },
-  });
-}
+    this.cargando = true;
+    this.error = '';
+    this.productoService.getProductos().subscribe({
+      next: (data) => {
+        this.productos = data;
+        this.cargando = false;
+      },
+      error: (err) => {
+        console.error('Error al cargar productos', err);
+        this.error = 'No se pudieron cargar los productos.';
+        this.cargando = false;
+      },
+    });
+  }
 
-cargarCategorias(): void {
-  this.categoriaService.getCategorias().subscribe({
-    next: (data) => {
-      this.categorias = data;
-      this.cdr.detectChanges();   // ← también acá
-    },
-    error: (err) => console.error('Error al cargar categorías', err),
-  });
-}
+  cargarCategorias(): void {
+    this.categoriaService.getCategorias().subscribe({
+      next: (data) => {
+        this.categorias = data;
+      },
+      error: (err) => console.error('Error al cargar categorías', err),
+    });
+  }
 
   abrirNuevo(): void {
     this.editandoId = null;
