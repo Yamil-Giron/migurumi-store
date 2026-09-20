@@ -16,8 +16,8 @@ export class Catalogo implements OnInit {
   private productoService = inject(ProductoService);
   private carritoService = inject(CarritoService);
 
-  productos: Producto[] = [];           // todos los productos del backend
-  productosFiltrados: Producto[] = [];  // los que se muestran (filtrados por búsqueda)
+  productos: Producto[] = [];
+  productosFiltrados: Producto[] = [];
   cargando = true;
   error = '';
   terminoBusqueda = '';
@@ -71,6 +71,21 @@ export class Catalogo implements OnInit {
   limpiarBusqueda(): void {
     this.terminoBusqueda = '';
     this.productosFiltrados = this.productos;
+  }
+
+  nombreCategoria(producto: Producto): string {
+    if (!producto.categoriaId) return '—';
+    if (typeof producto.categoriaId === 'object') {
+      return producto.categoriaId.nombre ?? '—';
+    }
+    return '—';
+  }
+
+  formatearPrecio(precio: number): string {
+    return new Intl.NumberFormat('es-AR', {
+      style: 'currency',
+      currency: 'ARS',
+    }).format(precio ?? 0);
   }
 
   agregarAlCarrito(producto: Producto): void {
