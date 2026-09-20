@@ -1,7 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ProductoService } from '../../servicios/producto.service';
 import { CategoriaService } from '../../servicios/categoria.service';
 import { Producto } from '../../servicios/producto.model';
@@ -10,7 +9,7 @@ import { Categoria } from '../../servicios/categoria.model';
 @Component({
   selector: 'app-gestion-productos',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './gestion-productos.html',
   styleUrl: './gestion-productos.css',
 })
@@ -21,72 +20,79 @@ export class GestionProductos implements OnInit {
 
   productos: Producto[] = [];
   categorias: Categoria[] = [];
-  cargando = true;
+  cargando = false;
+  guardando = false;
   error = '';
-
   mostrarFormulario = false;
   editandoId: string | null = null;
-  guardando = false;
 
-  form = this.fb.group({
-    nombre: ['', Validators.required],
-    categoriaId: ['', Validators.required],
-    precio: [0, [Validators.required, Validators.min(1)]],
-    stock: [0, [Validators.required, Validators.min(0)]],
+  // OJO: los nombres 'categoria' e 'imagen' coinciden con tu HTML actual.
+  // El mapeo a 'categoriaId' e 'imagenesUrl' se hace en guardar().
+  form: FormGroup = this.fb.group({
+    nombre: ['', [Validators.required, Validators.minLength(2)]],
     descripcion: [''],
-    imagenUrl: [''],
-    destacado: [false],
-    activo: [true],
+    precio: [0, [Validators.required, Validators.min(0)]],
+    categoria: ['', Validators.required],
+    imagen: [''],
+    stock: [0, [Validators.min(0)]],
   });
 
   ngOnInit(): void {
     this.cargarProductos();
-    this.categoriaService.getCategorias().subscribe((cats) => (this.categorias = cats));
+    this.cargarCategorias();
   }
 
   cargarProductos(): void {
     this.cargando = true;
+    this.error = '';
     this.productoService.getProductos().subscribe({
-      next: (productos) => {
-        this.productos = productos;
+      next: (data) => {
+        this.productos = data;
         this.cargando = false;
       },
-      error: () => {
+      error: (err) => {
+        console.error('Error al cargar productos', err);
         this.error = 'No se pudieron cargar los productos.';
         this.cargando = false;
       },
     });
   }
 
-  nombreCategoria(producto: Producto): string {
-    const c = producto.categoriaId;
-    return typeof c === 'object' && c !== null ? c.nombre : '';
-  }
-
-  formatearPrecio(valor: number): string {
-    return '$' + valor.toLocaleString('es-CL');
+  cargarCategorias(): void {
+    this.categoriaService.getCategorias().subscribe({
+      next: (data) => (this.categorias = data),
+      error: (err) => console.error('Error al cargar categorías', err),
+    });
   }
 
   abrirNuevo(): void {
     this.editandoId = null;
-    this.form.reset({ precio: 0, stock: 0, destacado: false, activo: true });
+    this.form.reset({
+      nombre: '',
+      descripcion: '',
+      precio: 0,
+      categoria: '',
+      imagen: '',
+      stock: 0,
+    });
     this.mostrarFormulario = true;
   }
 
   abrirEditar(producto: Producto): void {
-    this.editandoId = producto._id!;
+    this.editandoId = producto._id ?? null;
+
     const categoriaId =
-      typeof producto.categoriaId === 'object' ? producto.categoriaId._id : producto.categoriaId;
+      typeof producto.categoriaId === 'object'
+        ? producto.categoriaId._id
+        : producto.categoriaId;
 
     this.form.reset({
       nombre: producto.nombre,
-      categoriaId,
+      descripcion: producto.descripcion ?? '',
       precio: producto.precio,
-      stock: producto.stock,
-      descripcion: producto.descripcion || '',
-      imagenUrl: producto.imagenesUrl?.[0] || '',
-      destacado: producto.destacado || false,
-      activo: producto.activo ?? true,
+      categoria: categoriaId,
+      imagen: producto.imagenesUrl?.[0] ?? '',
+      stock: producto.stock ?? 0,
     });
     this.mostrarFormulario = true;
   }
@@ -94,6 +100,7 @@ export class GestionProductos implements OnInit {
   cancelar(): void {
     this.mostrarFormulario = false;
     this.editandoId = null;
+    this.form.reset();
   }
 
   guardar(): void {
@@ -102,43 +109,66 @@ export class GestionProductos implements OnInit {
       return;
     }
 
-    const valores = this.form.value;
+    this.guardando = true;
+    this.error = '';
+
+    const v = this.form.value;
+
+    // Mapeo del form → campos reales del modelo Producto
     const payload: Partial<Producto> = {
-      nombre: valores.nombre!,
-      categoriaId: valores.categoriaId!,
-      precio: Number(valores.precio),
-      stock: Number(valores.stock),
-      descripcion: valores.descripcion || '',
-      imagenesUrl: valores.imagenUrl ? [valores.imagenUrl] : [],
-      destacado: !!valores.destacado,
-      activo: !!valores.activo,
+      nombre: v.nombre,
+      descripcion: v.descripcion || undefined,
+      precio: Number(v.precio),
+      stock: Number(v.stock),
+      categoriaId: v.categoria,
+      imagenesUrl: v.imagen ? [v.imagen] : [],
     };
 
-    this.guardando = true;
-
-    const peticion = this.editandoId
+    const operacion = this.editandoId
       ? this.productoService.actualizarProducto(this.editandoId, payload)
       : this.productoService.crearProducto(payload);
 
-    peticion.subscribe({
+    operacion.subscribe({
       next: () => {
         this.guardando = false;
         this.mostrarFormulario = false;
+        this.editandoId = null;
         this.cargarProductos();
       },
-      error: () => {
+      error: (err) => {
+        console.error('Error al guardar', err);
+        this.error = err?.error?.mensaje ?? 'No se pudo guardar el producto.';
         this.guardando = false;
-        this.error = 'No se pudo guardar el producto.';
       },
     });
   }
 
   eliminar(producto: Producto): void {
-    if (!confirm(`¿Eliminar "${producto.nombre}"? Esta acción no se puede deshacer.`)) return;
+    if (!producto._id) return;
+    if (!confirm(`¿Eliminar el producto "${producto.nombre}"?`)) return;
 
-    this.productoService.eliminarProducto(producto._id!).subscribe({
+    this.productoService.eliminarProducto(producto._id).subscribe({
       next: () => this.cargarProductos(),
-      error: () => (this.error = 'No se pudo eliminar el producto.'),
+      error: (err) => {
+        console.error('Error al eliminar', err);
+        this.error = err?.error?.mensaje ?? 'No se pudo eliminar el producto.';
+      },
     });
+  }
+
+  nombreCategoria(producto: Producto): string {
+    if (!producto.categoriaId) return '—';
+    if (typeof producto.categoriaId === 'object') {
+      return producto.categoriaId.nombre ?? '—';
+    }
+    const cat = this.categorias.find((c) => c._id === producto.categoriaId);
+    return cat?.nombre ?? '—';
+  }
+
+  formatearPrecio(precio: number): string {
+    return new Intl.NumberFormat('es-AR', {
+      style: 'currency',
+      currency: 'ARS',
+    }).format(precio ?? 0);
   }
 }
