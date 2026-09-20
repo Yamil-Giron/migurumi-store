@@ -272,4 +272,11 @@
   color: var(--color-rosa);
   background-color: var(--color-crema);
 }
+.admin-btn {
+  color: #d97706;   /* naranja/dorado para destacar */
+}
+.admin-btn:hover {
+  color: #b45309;
+}
+
 }

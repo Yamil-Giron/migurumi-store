@@ -2,6 +2,7 @@ import { Injectable, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { environment } from '../../environments/environment';   // ← NUEVO
 
 export interface Usuario {
   id: string;
@@ -20,7 +21,7 @@ export interface RespuestaAuth {
 export class AuthService {
   private http = inject(HttpClient);
   private platformId = inject(PLATFORM_ID);
-  private apiUrl = 'http://localhost:3000/api/auth';
+  private apiUrl = `${environment.apiUrl}/auth`;
 
   private usuarioSubject: BehaviorSubject<Usuario | null>;
   usuario$: Observable<Usuario | null>;

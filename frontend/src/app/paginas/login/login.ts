@@ -2,7 +2,7 @@ import { Component, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { AuthService } from '../../servicios/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -12,7 +12,7 @@ import { HttpClient } from '@angular/common/http';
   styleUrls: ['./login.css'],
 })
 export class Login {
-  private http = inject(HttpClient);
+  private auth = inject(AuthService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
 
@@ -34,25 +34,21 @@ export class Login {
 
     this.cargando = true;
 
-    this.http
-      .post<any>('http://localhost:3000/api/auth/login', {
-        email: this.email,
-        contraseña: this.contrasena,
-      })
-      .subscribe({
-        next: (res) => {
-          this.cargando = false;
-          this.exito = `¡Bienvenido, ${res.usuario.nombre}!`;
-          localStorage.setItem('migurumi_token', res.token);
-          localStorage.setItem('migurumi_usuario', JSON.stringify(res.usuario));
-          this.cdr.detectChanges();
-          setTimeout(() => this.router.navigate(['/']), 5000);
-        },
-        error: (err) => {
-          this.cargando = false;
-          this.error = err?.error?.error || 'Credenciales inválidas';
-          this.cdr.detectChanges();
-        },
-      });
+    this.auth.login({ email: this.email, contraseña: this.contrasena }).subscribe({
+      next: (res) => {
+        this.cargando = false;
+        this.exito = `¡Bienvenido, ${res.usuario.nombre}!`;
+        this.cdr.detectChanges();
+
+        // Redirigir según rol
+        const destino = this.auth.esAdmin() ? '/admin/gestion-productos' : '/';
+        setTimeout(() => this.router.navigate([destino]), 1000);
+      },
+      error: (err) => {
+        this.cargando = false;
+        this.error = err?.error?.error || err?.error?.mensaje || 'Credenciales inválidas';
+        this.cdr.detectChanges();
+      },
+    });
   }
 }

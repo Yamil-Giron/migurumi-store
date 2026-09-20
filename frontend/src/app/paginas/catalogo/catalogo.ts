@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProductoService, Producto } from '../../servicios/producto.service';
 import { CarritoService } from '../../servicios/carrito.service';
@@ -17,28 +17,31 @@ export class Catalogo implements OnInit {
 
   constructor(
     private productoService: ProductoService,
-    private carritoService: CarritoService  // ← Inyecta el servicio
+    private carritoService: CarritoService,
+    private cdr: ChangeDetectorRef   // ← NUEVO
   ) { }
 
   ngOnInit(): void {
+    console.log('[Catalogo] ngOnInit ejecutado');
     this.productoService.getProductos().subscribe({
-      next: (data: Producto[]) => {  // ← Añadir tipo
+      next: (data: Producto[]) => {
+        console.log('[Catalogo] NEXT recibido. Cantidad:', data?.length);
         this.productos = data;
         this.cargando = false;
+        console.log('[Catalogo] cargando =', this.cargando, '| productos =', this.productos.length);
+        this.cdr.detectChanges();   // ← fuerza redibujado inmediato
       },
-      error: (err: any) => {        // ← Añadir tipo
+      error: (err: any) => {
+        console.error('[Catalogo] ERROR:', err);
         this.error = 'Error al cargar los productos. Intenta nuevamente.';
         this.cargando = false;
-        console.error('Error:', err);
+        this.cdr.detectChanges();
       }
     });
   }
 
-  // 🆕 Método agregar al carrito
   agregarAlCarrito(producto: Producto): void {
     this.carritoService.agregarProducto(producto);
     console.log('Producto agregado al carrito:', producto.nombre);
-    // Opcional: mostrar un mensaje o notificación
-    // alert(`¡${producto.nombre} agregado al carrito!`);
   }
 }
