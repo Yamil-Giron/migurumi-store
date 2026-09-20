@@ -64,9 +64,6 @@
     variante="compacto"
   ></app-producto-card>
 </div>
-      </article>
-    </div>
-
     <div *ngIf="!cargando && !error && productosDestacados.length === 0" class="estado-mensaje">
       <p>Pronto tendremos nuevos productos disponibles ✨</p>
     </div>
@@ -191,7 +188,6 @@
             <span>Envíos seguros a todo el país</span>
           </div>
         </div>
-
         <a routerLink="/nosotros" class="btn btn-primario mt-3">
           Conócenos más <span class="icono-boton">♥</span>
         </a>
