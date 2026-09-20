@@ -1,1 +1,108 @@
-<p>gestion-productos works!</p>
+<section class="admin-contenedor">
+
+  <div class="admin-header">
+    <div>
+      <a routerLink="/admin" class="volver">← Panel</a>
+      <h1>Gestión de productos</h1>
+    </div>
+    <button type="button" class="btn btn-primario" (click)="abrirNuevo()">+ Nuevo producto</button>
+  </div>
+
+  <p class="error-general" *ngIf="error">{{ error }}</p>
+
+  <div *ngIf="cargando" class="estado-mensaje">Cargando productos...</div>
+
+  <table class="tabla-admin" *ngIf="!cargando">
+    <thead>
+      <tr>
+        <th>Producto</th>
+        <th>Categoría</th>
+        <th>Precio</th>
+        <th>Stock</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let producto of productos">
+        <td class="celda-producto">
+          <img [src]="producto.imagenesUrl?.[0] || 'assets/placeholder.png'" [alt]="producto.nombre" />
+          <span>{{ producto.nombre }}</span>
+        </td>
+        <td>{{ nombreCategoria(producto) }}</td>
+        <td>{{ formatearPrecio(producto.precio) }}</td>
+        <td [class.stock-bajo]="producto.stock < 5">{{ producto.stock }}</td>
+        <td>
+          <span class="etiqueta" [class.activo]="producto.activo" [class.inactivo]="!producto.activo">
+            {{ producto.activo ? 'Activo' : 'Inactivo' }}
+          </span>
+        </td>
+        <td class="celda-acciones">
+          <button type="button" class="btn-icono" (click)="abrirEditar(producto)" title="Editar">✏️</button>
+          <button type="button" class="btn-icono" (click)="eliminar(producto)" title="Eliminar">🗑️</button>
+        </td>
+      </tr>
+      <tr *ngIf="productos.length === 0">
+        <td colspan="6" class="estado-mensaje">No hay productos todavía.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Modal de crear/editar -->
+  <div class="modal-fondo" *ngIf="mostrarFormulario" (click)="cancelar()">
+    <form class="modal-formulario" [formGroup]="form" (submit)="guardar()" (click)="$event.stopPropagation()">
+      <h2>{{ editandoId ? 'Editar producto' : 'Nuevo producto' }}</h2>
+
+      <label>
+        Nombre
+        <input type="text" formControlName="nombre" />
+      </label>
+
+      <label>
+        Categoría
+        <select formControlName="categoriaId">
+          <option value="" disabled>Selecciona una categoría</option>
+          <option *ngFor="let cat of categorias" [value]="cat._id">{{ cat.nombre }}</option>
+        </select>
+      </label>
+
+      <div class="fila-doble">
+        <label>
+          Precio
+          <input type="number" formControlName="precio" min="0" />
+        </label>
+        <label>
+          Stock
+          <input type="number" formControlName="stock" min="0" />
+        </label>
+      </div>
+
+      <label>
+        Descripción
+        <textarea formControlName="descripcion" rows="3"></textarea>
+      </label>
+
+      <label>
+        URL de imagen
+        <input type="text" formControlName="imagenUrl" placeholder="https://..." />
+      </label>
+
+      <div class="fila-checks">
+        <label class="check">
+          <input type="checkbox" formControlName="destacado" /> Destacado
+        </label>
+        <label class="check">
+          <input type="checkbox" formControlName="activo" /> Activo
+        </label>
+      </div>
+
+      <div class="modal-acciones">
+        <button type="button" class="btn btn-outline" (click)="cancelar()">Cancelar</button>
+        <button type="submit" class="btn btn-primario" [disabled]="guardando">
+          {{ guardando ? 'Guardando...' : 'Guardar' }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+</section>
