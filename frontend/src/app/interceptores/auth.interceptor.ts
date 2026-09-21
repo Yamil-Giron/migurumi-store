@@ -11,8 +11,11 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   const token = auth.getToken();
 
-  // Solo agregar token si hay sesión y no es una request de auth
-  if (token && !req.url.includes('/auth/login') && !req.url.includes('/auth/registro')) {
+  const esRutaAuth = req.url.includes('/auth/login') || req.url.includes('/auth/registro');
+  const esCloudinary = req.url.startsWith('https://api.cloudinary.com') || 
+                       req.url.startsWith('https://upload-widget.cloudinary.com');
+
+  if (token && !esRutaAuth && !esCloudinary) {
     req = req.clone({
       setHeaders: { Authorization: `Bearer ${token}` },
     });

@@ -1,0 +1,215 @@
+<div class="personalizado-container">
+
+  <!-- ===== Vista de éxito ===== -->
+  <div *ngIf="exito()" class="exito-panel">
+    <div class="exito-icono">🎉</div>
+    <h1>¡Pedido enviado!</h1>
+    <p class="exito-numero">
+      Tu número de pedido es <strong>{{ numeroPedidoCreado() }}</strong>
+    </p>
+    <p class="exito-texto">
+      Recibimos tu solicitud. En las próximas <strong>24-48 horas</strong> te vamos a
+      enviar una cotización al email que nos dejaste.
+    </p>
+    <div class="exito-acciones">
+      <button type="button" class="btn btn-primario" (click)="nuevoPedido()">
+        Hacer otro pedido
+      </button>
+      <a routerLink="/tienda" class="btn btn-outline">Ver catálogo</a>
+    </div>
+  </div>
+
+  <!-- ===== Formulario ===== -->
+  <div *ngIf="!exito()">
+    <header class="personalizado-header">
+      <h1>Pedido personalizado</h1>
+      <p class="subtitulo">
+        Contanos qué querés y te enviamos una cotización a medida. Podés adjuntar
+        imágenes de referencia para que veamos la idea.
+      </p>
+    </header>
+
+    <form [formGroup]="form" (ngSubmit)="enviar()" class="personalizado-form">
+
+      <!-- ===== Datos de contacto ===== -->
+      <section class="card">
+        <h2>1. Tus datos</h2>
+        <div class="grid-2">
+          <label class="campo">
+            <span>Nombre *</span>
+            <input type="text" formControlName="nombre" placeholder="Tu nombre" />
+          </label>
+          <label class="campo">
+            <span>Email *</span>
+            <input type="email" formControlName="email" placeholder="tu@email.com" />
+          </label>
+          <label class="campo">
+            <span>Teléfono</span>
+            <input type="tel" formControlName="telefono" placeholder="+56 9 1234 5678" />
+          </label>
+        </div>
+      </section>
+
+      <!-- ===== Detalles del pedido ===== -->
+      <section class="card">
+        <h2>2. Tu idea</h2>
+
+        <label class="campo">
+          <span>Descripción del pedido *</span>
+          <textarea
+            formControlName="descripcion"
+            rows="4"
+            placeholder="Ej: Quiero una vaca tejida con manchas, estilo kawaii..."
+          ></textarea>
+        </label>
+
+        <div class="grid-2">
+          <div class="campo">
+            <span>Cantidad *</span>
+            <input type="number" formControlName="cantidad" min="1" />
+          </div>
+
+          <label class="campo">
+            <span>Presupuesto estimado (opcional)</span>
+            <input
+              type="number"
+              formControlName="presupuestoCliente"
+              min="0"
+              placeholder="Ej: 15000"
+            />
+          </label>
+        </div>
+
+        <!-- Colores -->
+        <div class="campo">
+          <span>Colores que te gustaría</span>
+          <div class="chips-input">
+            <input
+              type="text"
+              formControlName="coloresInput"
+              placeholder="Ej: rosa"
+              (keydown.enter)="$event.preventDefault(); agregarColor()"
+            />
+            <button type="button" class="btn-add" (click)="agregarColor()">+</button>
+          </div>
+          <div class="chips-lista" *ngIf="colores.length > 0">
+            <span *ngFor="let c of colores" class="chip">
+              {{ c }}
+              <button type="button" (click)="quitarColor(c)">✕</button>
+            </span>
+          </div>
+        </div>
+
+        <!-- Tamaños -->
+        <div class="campo">
+          <span>Tamaños / medidas</span>
+          <div class="chips-input">
+            <input
+              type="text"
+              formControlName="tamanosInput"
+              placeholder="Ej: 15cm"
+              (keydown.enter)="$event.preventDefault(); agregarTamano()"
+            />
+            <button type="button" class="btn-add" (click)="agregarTamano()">+</button>
+          </div>
+          <div class="chips-lista" *ngIf="tamanos.length > 0">
+            <span *ngFor="let t of tamanos" class="chip">
+              {{ t }}
+              <button type="button" (click)="quitarTamano(t)">✕</button>
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== Imágenes ===== -->
+      <section class="card">
+        <h2>3. Imágenes de referencia</h2>
+        <p class="hint">
+          Subí hasta {{ maxImagenes }} imágenes de ejemplo para que entendamos mejor tu idea.
+        </p>
+
+        <div class="imagenes-grid">
+          <div *ngFor="let url of imagenes()" class="imagen-item">
+            <img [src]="url" alt="Referencia" />
+            <button type="button" class="btn-quitar-img" (click)="quitarImagen(url)" title="Quitar">
+              ✕
+            </button>
+          </div>
+
+          <button
+            *ngIf="imagenes().length < maxImagenes"
+            type="button"
+            class="btn-subir-imagen"
+            (click)="subirImagenes()"
+          >
+            <span class="icono">📷</span>
+            <span>Subir imagen</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- ===== Envío ===== -->
+      <section class="card">
+        <h2>4. Envío</h2>
+
+        <div class="radio-group">
+          <label class="radio">
+            <input type="radio" formControlName="envioTipo" value="cotizar" />
+            <div>
+              <strong>Cotizar envío</strong>
+              <p>Te paso el costo del envío junto con la cotización.</p>
+            </div>
+          </label>
+
+          <label class="radio">
+            <input type="radio" formControlName="envioTipo" value="retiro" />
+            <div>
+              <strong>Retiro en persona</strong>
+              <p>Pasás a buscarlo cuando esté listo.</p>
+            </div>
+          </label>
+
+          <label class="radio">
+            <input type="radio" formControlName="envioTipo" value="domicilio" />
+            <div>
+              <strong>Envío a domicilio</strong>
+              <p>Cargá tu dirección y te cotizamos.</p>
+            </div>
+          </label>
+        </div>
+
+        <!-- Dirección (solo si elige domicilio) -->
+        <div class="grid-2" *ngIf="requiereDireccion">
+          <label class="campo campo-full">
+            <span>Calle y número *</span>
+            <input type="text" formControlName="calle" placeholder="Av. Siempre Viva 742" />
+          </label>
+          <label class="campo">
+            <span>Ciudad *</span>
+            <input type="text" formControlName="ciudad" placeholder="Santiago" />
+          </label>
+          <label class="campo">
+            <span>Región</span>
+            <input type="text" formControlName="region" placeholder="Metropolitana" />
+          </label>
+          <label class="campo">
+            <span>Código postal</span>
+            <input type="text" formControlName="codigoPostal" placeholder="8320000" />
+          </label>
+        </div>
+      </section>
+
+      <!-- Error global -->
+      <p class="error-general" *ngIf="error()">{{ error() }}</p>
+
+      <!-- Submit -->
+      <div class="acciones-form">
+        <button type="submit" class="btn btn-primario btn-lg" [disabled]="enviando()">
+          {{ enviando() ? 'Enviando...' : 'Enviar pedido personalizado' }}
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+</div>
