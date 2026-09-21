@@ -1,0 +1,45 @@
+.contacto-container {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+  text-align: center;
+}
+
+.contacto-hero h1 {
+  margin-bottom: 16px;
+}
+
+.contacto-hero p {
+  margin-bottom: 40px;
+}
+
+.contacto-card {
+  background: #fff;
+  border-radius: 24px;
+  padding: 48px 32px;
+  box-shadow: 0 4px 20px rgba(245, 161, 184, 0.15);
+  margin-bottom: 32px;
+}
+
+.contacto-icono {
+  margin-bottom: 16px;
+}
+
+.contacto-card h2 {
+  margin-bottom: 8px;
+}
+
+.contacto-card p {
+  margin-bottom: 24px;
+}
+
+.contacto-nota {
+  font-size: 14px;
+  color: var(--color-texto-suave, #6b4a4a);
+}
+
+.contacto-nota a {
+  color: var(--color-rosa, #f5a1b8);
+  font-weight: 600;
+  text-decoration: underline;
+}

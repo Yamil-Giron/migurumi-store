@@ -2,7 +2,7 @@
   <h1>Tu carrito</h1>
 
   <!-- Carrito vacío -->
-  <div *ngIf="items().length === 0" class="carrito-vacio">
+  <div *ngIf="items().length === 0 && !pedidoConfirmado()" class="carrito-vacio">
     <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#d5c5c5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="9" cy="21" r="1"/>
       <circle cx="20" cy="21" r="1"/>
@@ -78,14 +78,28 @@
         <span>{{ formatearPrecio(total()) }}</span>
       </div>
 
-      <button type="button" class="btn btn-primario btn-block">
-        Finalizar compra
+            <button
+        type="button"
+        class="btn btn-primario btn-block"
+        [disabled]="procesando()"
+        (click)="hacerPedido()"
+      >
+        {{ procesando() ? 'Procesando...' : 'Hacer pedido' }}
       </button>
+
+      <p *ngIf="errorPedido()" style="color:#c0392b; margin-top:8px;">
+        {{ errorPedido() }}
+      </p>
 
       <a routerLink="/tienda" class="btn btn-outline btn-block">
         Seguir comprando
       </a>
     </aside>
+  </div>
 
+  <div *ngIf="pedidoConfirmado()" class="carrito-vacio">
+    <h2>¡Pedido realizado! 🎉</h2>
+    <p>Tu número de pedido es <strong>{{ pedidoConfirmado()!.numeroPedido }}</strong></p>
+    <a routerLink="/tienda" class="btn btn-primario">Seguir comprando</a>
   </div>
 </div>
