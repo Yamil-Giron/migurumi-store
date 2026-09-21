@@ -11,9 +11,11 @@ import { GestionProductos } from './administracion/gestion-productos/gestion-pro
 import { adminGuard } from './guards/admin.guard';
 import { ProductoDetalle } from './paginas/producto-detalle/producto-detalle';
 import { GestionCategorias } from './administracion/gestion-categorias/gestion-categorias';
+import { PedidoPersonalizado } from './paginas/personalizados/pedido-personalizado';
 
 export const routes: Routes = [
   { path: '', component: Inicio },
+  { path: 'personalizados', component: PedidoPersonalizado },
   { path: 'tienda', component: Catalogo },
   { path: 'contacto', component: Contacto },
   { path: 'producto/:slug', component: ProductoDetalle },
