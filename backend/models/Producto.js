@@ -1,5 +1,32 @@
 const mongoose = require('mongoose');
 
+// Sub-schema: una variante (combinación color + medida)
+const varianteSchema = new mongoose.Schema(
+  {
+    color: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    medida: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    stock: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    precioExtra: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+  },
+  { _id: true }   // cada variante tiene su propio _id
+);
+
 const productoSchema = new mongoose.Schema(
   {
     nombre: {
@@ -31,6 +58,11 @@ const productoSchema = new mongoose.Schema(
       material: String,
       tiempoElaboracion: String,
       colores: [String],
+    },
+    // NUEVO: variantes color + medida
+    variantes: {
+      type: [varianteSchema],
+      default: [],
     },
     activo: { type: Boolean, default: true },
     destacado: Boolean,

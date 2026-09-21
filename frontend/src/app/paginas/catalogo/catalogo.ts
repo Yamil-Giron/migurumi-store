@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { ProductoService } from '../../servicios/producto.service';
 import { Producto } from '../../servicios/producto.model';
 import { CarritoService } from '../../servicios/carrito.service';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-catalogo',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './catalogo.html',
   styleUrls: ['./catalogo.css'],
 })

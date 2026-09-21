@@ -1,0 +1,110 @@
+<section class="admin-contenedor">
+
+  <app-admin-nav></app-admin-nav>
+
+  <div class="admin-header">
+    <h1>Gestión de categorías</h1>
+    <button type="button" class="btn btn-primario" (click)="abrirNuevo()">
+      + Nueva categoría
+    </button>
+  </div>
+
+  <p class="error-general" *ngIf="error()">{{ error() }}</p>
+
+  <div *ngIf="cargando()" class="estado-mensaje">Cargando categorías...</div>
+
+  <table class="tabla-admin" *ngIf="!cargando()">
+    <thead>
+      <tr>
+        <th>Orden</th>
+        <th>Nombre</th>
+        <th>Slug</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let categoria of categorias()">
+        <td>{{ categoria.orden ?? 0 }}</td>
+        <td>
+          <strong>{{ categoria.nombre }}</strong>
+          <p class="descripcion-cat" *ngIf="categoria.descripcion">
+            {{ categoria.descripcion }}
+          </p>
+        </td>
+        <td class="slug">{{ categoria.slug }}</td>
+        <td>
+          <span
+            class="etiqueta"
+            [class.activo]="categoria.activa"
+            [class.inactivo]="!categoria.activa"
+          >
+            {{ categoria.activa ? 'Activa' : 'Inactiva' }}
+          </span>
+        </td>
+        <td class="celda-acciones">
+          <button type="button" class="btn-icono" (click)="abrirEditar(categoria)" title="Editar">✏️</button>
+          <button type="button" class="btn-icono" (click)="abrirConfirmacionEliminar(categoria)" title="Eliminar">🗑️</button>
+        </td>
+      </tr>
+      <tr *ngIf="categorias().length === 0">
+        <td colspan="5" class="estado-mensaje">No hay categorías todavía.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Modal crear/editar -->
+  <div class="modal-fondo" *ngIf="mostrarFormulario()" (click)="cancelar()">
+    <form
+      class="modal-formulario"
+      [formGroup]="form"
+      (submit)="guardar()"
+      (click)="$event.stopPropagation()"
+    >
+      <h2>{{ editandoId() ? 'Editar categoría' : 'Nueva categoría' }}</h2>
+
+      <label>
+        Nombre
+        <input type="text" formControlName="nombre" />
+      </label>
+
+      <label>
+        Descripción
+        <textarea formControlName="descripcion" rows="2"></textarea>
+      </label>
+
+      <label>
+        Orden (número, menor = primero)
+        <input type="number" formControlName="orden" min="0" />
+      </label>
+
+      <div class="fila-checks">
+        <label class="check">
+          <input type="checkbox" formControlName="activa" /> Activa
+        </label>
+      </div>
+
+      <div class="modal-acciones">
+        <button type="button" class="btn btn-outline" (click)="cancelar()">Cancelar</button>
+        <button type="submit" class="btn btn-primario" [disabled]="guardando()">
+          {{ guardando() ? 'Guardando...' : 'Guardar' }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ✅ Modal confirmar eliminar categoría -->
+  <div class="modal-fondo" *ngIf="categoriaAEliminar() as cat" (click)="cancelarEliminar()">
+    <div class="modal-confirmar" (click)="$event.stopPropagation()">
+      <h3>¿Eliminar categoría?</h3>
+      <p>
+        Estás por eliminar <strong>{{ cat.nombre }}</strong>. Esta acción no se puede deshacer.
+      </p>
+      <div class="modal-acciones">
+        <button type="button" class="btn btn-outline" (click)="cancelarEliminar()">Cancelar</button>
+        <button type="button" class="btn btn-peligro" (click)="confirmarEliminar()">Sí, eliminar</button>
+      </div>
+    </div>
+  </div>
+
+</section>

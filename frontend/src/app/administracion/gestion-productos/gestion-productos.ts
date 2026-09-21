@@ -1,15 +1,17 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { ProductoService } from '../../servicios/producto.service';
 import { CategoriaService } from '../../servicios/categoria.service';
-import { Producto } from '../../servicios/producto.model';
+import { Producto, Variante } from '../../servicios/producto.model';
 import { Categoria } from '../../servicios/categoria.model';
+import { RouterModule } from '@angular/router';
+import { AdminNav } from '../admin-nav/admin-nav';
 
 @Component({
   selector: 'app-gestion-productos',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, AdminNav],
   templateUrl: './gestion-productos.html',
   styleUrl: './gestion-productos.css',
 })
@@ -17,6 +19,8 @@ export class GestionProductos implements OnInit {
   private productoService = inject(ProductoService);
   private categoriaService = inject(CategoriaService);
   private fb = inject(FormBuilder);
+  private cloudName = 'naybrja2';
+  private uploadPreset = 'migurumi-store';
 
   productos = signal<Producto[]>([]);
   categorias = signal<Categoria[]>([]);
@@ -25,6 +29,7 @@ export class GestionProductos implements OnInit {
   error = signal('');
   mostrarFormulario = signal(false);
   editandoId = signal<string | null>(null);
+  productoAEliminar = signal<Producto | null>(null);
 
   form: FormGroup = this.fb.group({
     nombre: ['', [Validators.required, Validators.minLength(2)]],
@@ -35,12 +40,20 @@ export class GestionProductos implements OnInit {
     stock: [0, [Validators.min(0)]],
     activo: [true],
     destacado: [false],
+    variantes: this.fb.array([]),   // ← NUEVO
   });
+
+  // Getter cómodo para el FormArray de variantes
+  get variantesArray(): FormArray {
+    return this.form.get('variantes') as FormArray;
+  }
 
   ngOnInit(): void {
     this.cargarProductos();
     this.cargarCategorias();
   }
+
+  // ============ CARGA ============
 
   cargarProductos(): void {
     this.cargando.set(true);
@@ -60,12 +73,36 @@ export class GestionProductos implements OnInit {
 
   cargarCategorias(): void {
     this.categoriaService.getCategorias().subscribe({
-      next: (data) => {
-        this.categorias.set(data);
-      },
+      next: (data) => this.categorias.set(data),
       error: (err) => console.error('Error al cargar categorías', err),
     });
   }
+
+  // ============ VARIANTES ============
+
+  crearGrupoVariante(v?: Partial<Variante>): FormGroup {
+    return this.fb.group({
+      color: [v?.color ?? '', Validators.required],
+      medida: [v?.medida ?? '', Validators.required],
+      stock: [v?.stock ?? 0, [Validators.required, Validators.min(0)]],
+      precioExtra: [v?.precioExtra ?? 0, [Validators.min(0)]],
+    });
+  }
+
+  agregarVariante(): void {
+    this.variantesArray.push(this.crearGrupoVariante());
+  }
+
+  eliminarVariante(index: number): void {
+    this.variantesArray.removeAt(index);
+  }
+
+  private cargarVariantesEnForm(variantes: Variante[] = []): void {
+    this.variantesArray.clear();
+    variantes.forEach((v) => this.variantesArray.push(this.crearGrupoVariante(v)));
+  }
+
+  // ============ MODAL ============
 
   abrirNuevo(): void {
     this.editandoId.set(null);
@@ -79,6 +116,7 @@ export class GestionProductos implements OnInit {
       activo: true,
       destacado: false,
     });
+    this.variantesArray.clear();
     this.mostrarFormulario.set(true);
   }
 
@@ -100,6 +138,8 @@ export class GestionProductos implements OnInit {
       activo: producto.activo ?? true,
       destacado: producto.destacado ?? false,
     });
+
+    this.cargarVariantesEnForm(producto.variantes ?? []);
     this.mostrarFormulario.set(true);
   }
 
@@ -107,7 +147,10 @@ export class GestionProductos implements OnInit {
     this.mostrarFormulario.set(false);
     this.editandoId.set(null);
     this.form.reset();
+    this.variantesArray.clear();
   }
+
+  // ============ GUARDAR ============
 
   guardar(): void {
     if (this.form.invalid) {
@@ -120,15 +163,44 @@ export class GestionProductos implements OnInit {
 
     const v = this.form.value;
 
+    // Normalizar variantes
+    const variantes: Variante[] = (v.variantes ?? []).map((vari: any) => ({
+      color: (vari.color ?? '').trim(),
+      medida: (vari.medida ?? '').trim(),
+      stock: Number(vari.stock) || 0,
+      precioExtra: Number(vari.precioExtra) || 0,
+    }));
+
+    // Validar combinaciones duplicadas
+    const combinaciones = variantes.map(
+      (x) => `${x.color.toLowerCase()}|${x.medida.toLowerCase()}`
+    );
+    const hayDuplicados = combinaciones.some(
+      (c, i) => combinaciones.indexOf(c) !== i
+    );
+    if (hayDuplicados) {
+      this.error.set('Hay variantes duplicadas (mismo color y medida).');
+      this.guardando.set(false);
+      return;
+    }
+
+    // El stock total del producto es la suma de los stocks de las variantes.
+    // Si no hay variantes, se usa el stock manual del formulario.
+    const stockTotal =
+      variantes.length > 0
+        ? variantes.reduce((acc, x) => acc + (x.stock ?? 0), 0)
+        : Number(v.stock) || 0;
+
     const payload: Partial<Producto> = {
       nombre: v.nombre,
       descripcion: v.descripcion || undefined,
       precio: Number(v.precio),
-      stock: Number(v.stock),
+      stock: stockTotal,
       categoriaId: v.categoriaId,
       imagenesUrl: v.imagenUrl ? [v.imagenUrl] : [],
       activo: v.activo,
       destacado: v.destacado,
+      variantes,   // ← NUEVO
     };
 
     const id = this.editandoId();
@@ -153,20 +225,36 @@ export class GestionProductos implements OnInit {
     });
   }
 
-  eliminar(producto: Producto): void {
-    if (!producto._id) return;
-    if (!confirm(`¿Eliminar el producto "${producto.nombre}"?`)) return;
+// ============ ELIMINAR ============
 
-    this.productoService.eliminarProducto(producto._id).subscribe({
-      next: () => this.cargarProductos(),
-      error: (err) => {
-        console.error('Error al eliminar', err);
-        this.error.set(
-          err?.error?.mensaje ?? err?.error?.error ?? 'No se pudo eliminar el producto.'
-        );
-      },
-    });
-  }
+abrirConfirmacionEliminar(producto: Producto): void {
+  this.productoAEliminar.set(producto);
+}
+
+cancelarEliminar(): void {
+  this.productoAEliminar.set(null);
+}
+
+confirmarEliminar(): void {
+  const producto = this.productoAEliminar();
+  if (!producto?._id) return;
+
+  this.productoService.eliminarProducto(producto._id).subscribe({
+    next: () => {
+      this.productoAEliminar.set(null);
+      this.cargarProductos();
+    },
+    error: (err) => {
+      console.error('Error al eliminar', err);
+      this.error.set(
+        err?.error?.mensaje ?? err?.error?.error ?? 'No se pudo eliminar el producto.'
+      );
+      this.productoAEliminar.set(null);
+    },
+  });
+}
+
+  // ============ HELPERS ============
 
   nombreCategoria(producto: Producto): string {
     if (!producto.categoriaId) return '—';
@@ -183,4 +271,33 @@ export class GestionProductos implements OnInit {
       currency: 'ARS',
     }).format(precio ?? 0);
   }
+
+  // Para mostrar un resumen de variantes en la tabla
+  resumenVariantes(producto: Producto): string {
+    if (!producto.variantes || producto.variantes.length === 0) {
+      return '—';
+    }
+    return `${producto.variantes.length} variante(s)`;
+  }
+
+  subirImagen(): void {
+  const widget = (window as any).cloudinary.createUploadWidget(
+    {
+      cloudName: this.cloudName,
+      uploadPreset: this.uploadPreset,
+      sources: ['local', 'url', 'camera'],
+      multiple: false,
+      maxFileSize: 5000000, // 5MB
+      folder: 'productos', // Opcional, si lo configuraste en el preset
+    },
+    (error: any, result: any) => {
+      if (!error && result && result.event === 'success') {
+        // Al subir con éxito, actualiza el campo 'imagenUrl' del formulario
+        this.form.patchValue({ imagenUrl: result.info.secure_url });
+        // Opcional: forzar la detección de cambios si es necesario
+      }
+    }
+  );
+  widget.open();
+}
 }

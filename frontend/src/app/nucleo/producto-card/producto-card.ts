@@ -42,7 +42,7 @@ export class ProductoCard {
   agregarAlCarrito(event: Event): void {
     event.preventDefault();
     event.stopPropagation();
-    this.carrito.agregar(this.producto);
+    this.carrito.agregarProducto(this.producto);
     this.cdr.detectChanges();
   }
 }

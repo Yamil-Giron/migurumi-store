@@ -2,13 +2,22 @@ import { Injectable, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
-import { environment } from '../../environments/environment';   // ← NUEVO
+import { environment } from '../../environments/environment';
 
 export interface Usuario {
   id: string;
   nombre: string;
   email: string;
   rol: 'cliente' | 'administrador';
+  telefono?: string;
+  direccion?: {
+    calle?: string;
+    ciudad?: string;
+    region?: string;
+    codigoPostal?: string;
+    pais?: string;
+  };
+  fotoPerfil?: string | null;
 }
 
 export interface RespuestaAuth {
@@ -30,7 +39,6 @@ export class AuthService {
   private userKey = 'migurumi_usuario';
 
   constructor() {
-    // Solo intentar leer localStorage si estamos en el navegador
     const usuarioInicial = this.esNavegador() ? this.leerUsuario() : null;
     this.usuarioSubject = new BehaviorSubject<Usuario | null>(usuarioInicial);
     this.usuario$ = this.usuarioSubject.asObservable();
@@ -72,6 +80,18 @@ export class AuthService {
 
   esAdmin(): boolean {
     return this.usuarioSubject.value?.rol === 'administrador';
+  }
+
+  getUsuarioActual(): Usuario | null {
+    return this.usuarioSubject.value;
+  }
+
+  // 👇 NUEVO: actualizar usuario en memoria + localStorage
+  actualizarUsuarioLocal(usuario: Usuario): void {
+    if (this.esNavegador()) {
+      localStorage.setItem(this.userKey, JSON.stringify(usuario));
+    }
+    this.usuarioSubject.next(usuario);
   }
 
   private guardarSesion(res: RespuestaAuth): void {

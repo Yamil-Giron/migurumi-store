@@ -1,1 +1,91 @@
-<p>carrito-de-compras works!</p>
+<div class="carrito-container">
+  <h1>Tu carrito</h1>
+
+  <!-- Carrito vacío -->
+  <div *ngIf="items().length === 0" class="carrito-vacio">
+    <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#d5c5c5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="9" cy="21" r="1"/>
+      <circle cx="20" cy="21" r="1"/>
+      <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+    </svg>
+    <p>Tu carrito está vacío</p>
+    <a routerLink="/tienda" class="btn btn-primario">Ver productos</a>
+  </div>
+
+  <!-- Carrito con items -->
+  <div *ngIf="items().length > 0" class="carrito-layout">
+
+    <!-- Lista de items -->
+    <div class="carrito-items">
+      <div class="items-header">
+        <span>{{ cantidadTotal() }} {{ cantidadTotal() === 1 ? 'producto' : 'productos' }}</span>
+        <button type="button" class="btn-vaciar" (click)="vaciar()">Vaciar carrito</button>
+      </div>
+
+      <div class="item" *ngFor="let item of items()">
+        <img [src]="item.imagenUrl" [alt]="item.nombre" />
+
+        <div class="item-info">
+          <h3>{{ item.nombre }}</h3>
+
+          <p class="item-variante" *ngIf="item.variante">
+            <span class="tag">{{ item.variante.color }}</span>
+            <span class="tag">{{ item.variante.medida }}</span>
+          </p>
+
+          <p class="item-precio-unitario">
+            {{ formatearPrecio(item.precioUnitario) }} c/u
+          </p>
+        </div>
+
+        <div class="item-cantidad">
+          <button type="button" (click)="disminuir(item)" [disabled]="item.cantidad <= 1">−</button>
+          <span>{{ item.cantidad }}</span>
+          <button type="button" (click)="aumentar(item)" [disabled]="item.cantidad >= item.stockDisponible">+</button>
+        </div>
+
+        <div class="item-subtotal">
+          {{ formatearPrecio(item.precioUnitario * item.cantidad) }}
+        </div>
+
+        <button type="button" class="btn-quitar" (click)="quitar(item)" title="Quitar">
+          🗑️
+        </button>
+      </div>
+    </div>
+
+    <!-- Resumen -->
+    <aside class="carrito-resumen">
+      <h2>Resumen</h2>
+
+      <div class="resumen-fila">
+        <span>Subtotal</span>
+        <span>{{ formatearPrecio(subtotal()) }}</span>
+      </div>
+
+      <div class="resumen-fila">
+        <span>Envío</span>
+        <span *ngIf="costoEnvio() === 0" class="envio-gratis">Gratis 🎉</span>
+        <span *ngIf="costoEnvio() > 0">{{ formatearPrecio(costoEnvio()) }}</span>
+      </div>
+
+      <p class="envio-hint" *ngIf="costoEnvio() > 0">
+        Te faltan {{ formatearPrecio(20000 - subtotal()) }} para envío gratis
+      </p>
+
+      <div class="resumen-total">
+        <span>Total</span>
+        <span>{{ formatearPrecio(total()) }}</span>
+      </div>
+
+      <button type="button" class="btn btn-primario btn-block">
+        Finalizar compra
+      </button>
+
+      <a routerLink="/tienda" class="btn btn-outline btn-block">
+        Seguir comprando
+      </a>
+    </aside>
+
+  </div>
+</div>

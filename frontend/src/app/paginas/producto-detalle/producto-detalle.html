@@ -1,0 +1,92 @@
+<div class="detalle-container" *ngIf="!cargando() && !error() && producto() as p">
+  <a routerLink="/tienda" class="volver">← Volver al catálogo</a>
+
+  <div class="detalle-layout">
+    <div class="detalle-imagen">
+      <img [src]="p.imagenesUrl?.[0] || 'assets/placeholder.png'" [alt]="p.nombre" />
+    </div>
+
+    <div class="detalle-info">
+      <p class="detalle-categoria">{{ nombreCategoria(p) }}</p>
+      <h1>{{ p.nombre }}</h1>
+
+      <p class="detalle-precio">{{ formatearPrecio(precioFinal()) }}</p>
+
+      <p class="detalle-descripcion" *ngIf="p.descripcion">{{ p.descripcion }}</p>
+
+      <!-- Selector color -->
+      <div class="selector-grupo" *ngIf="coloresDisponibles().length > 0">
+        <label>Color:</label>
+        <div class="chips">
+          <button
+            type="button"
+            *ngFor="let color of coloresDisponibles()"
+            class="chip"
+            [class.selected]="colorSeleccionado() === color"
+            (click)="seleccionarColor(color)"
+          >
+            {{ color }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Selector medida -->
+      <div class="selector-grupo" *ngIf="medidasDisponibles().length > 0">
+        <label>Medida:</label>
+        <div class="chips">
+          <button
+            type="button"
+            *ngFor="let medida of medidasDisponibles()"
+            class="chip"
+            [class.selected]="medidaSeleccionada() === medida"
+            [class.sin-stock]="!medidaTieneStock(medida)"
+            (click)="seleccionarMedida(medida)"
+          >
+            {{ medida }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Info stock -->
+      <div class="stock-info" *ngIf="colorSeleccionado() && medidaSeleccionada()">
+        <p *ngIf="puedeAgregar()" class="stock-ok">
+          ✓ {{ stockDisponible() }} disponibles
+        </p>
+        <p *ngIf="sinStock()" class="stock-agotado">
+          ⚠ Sin stock — Podés solicitar su creación
+        </p>
+      </div>
+
+      <!-- Cantidad -->
+      <div class="selector-cantidad" *ngIf="puedeAgregar()">
+        <label>Cantidad:</label>
+        <div class="cantidad-controles">
+          <button type="button" (click)="decrementarCantidad()" [disabled]="cantidad() <= 1">−</button>
+          <span>{{ cantidad() }}</span>
+          <button type="button" (click)="incrementarCantidad()" [disabled]="cantidad() >= stockDisponible()">+</button>
+        </div>
+      </div>
+
+      <!-- Acciones -->
+      <div class="detalle-acciones">
+        <button
+          *ngIf="puedeAgregar()"
+          type="button"
+          class="btn btn-primario"
+          (click)="agregarAlCarrito()"
+        >
+          🛒 Agregar al carrito
+        </button>
+
+        <a *ngIf="sinStock()" routerLink="/contacto" class="btn btn-solicitar">
+          📩 Solicitar creación
+        </a>
+      </div>
+
+      <p class="mensaje-agregado" *ngIf="agregado()">✓ ¡Agregado al carrito!</p>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="cargando()" class="estado-mensaje">Cargando producto...</div>
+<div *ngIf="error()" class="estado-mensaje error">{{ error() }}</div>

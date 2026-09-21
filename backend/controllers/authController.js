@@ -5,41 +5,42 @@ const generarToken = (user) => {
   return jwt.sign(
     { id: user._id, email: user.email, rol: user.rol },
     process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRE }
+    { expiresIn: process.env.JWT_EXPIRE || '7d' }
   );
 };
 
+// POST /api/auth/registro
 exports.registro = async (req, res) => {
   try {
-    const { nombre, email, contraseña, rol } = req.body;
+    const { nombre, email, contraseña } = req.body;
 
     if (!nombre || !email || !contraseña) {
       return res.status(400).json({ error: 'Nombre, email y contraseña son requeridos' });
     }
 
-    let usuario = await Usuario.findOne({ email });
+    const usuario = await Usuario.findOne({ email });
     if (usuario) {
       return res.status(400).json({ error: 'El usuario ya existe' });
     }
 
-    usuario = new Usuario({
+    const nuevoUsuario = new Usuario({
       nombre,
       email,
       contraseña,
-      rol: rol || 'cliente',
+      rol: 'cliente',   // ← SIEMPRE cliente, ignora lo que venga del body
     });
 
-    await usuario.save();
-    const token = generarToken(usuario);
+    await nuevoUsuario.save();
+    const token = generarToken(nuevoUsuario);
 
     res.status(201).json({
       mensaje: 'Usuario registrado exitosamente',
       token,
       usuario: {
-        id: usuario._id,
-        nombre: usuario.nombre,
-        email: usuario.email,
-        rol: usuario.rol,
+        id: nuevoUsuario._id,
+        nombre: nuevoUsuario.nombre,
+        email: nuevoUsuario.email,
+        rol: nuevoUsuario.rol,
       },
     });
   } catch (error) {
@@ -47,6 +48,7 @@ exports.registro = async (req, res) => {
   }
 };
 
+// POST /api/auth/login
 exports.login = async (req, res) => {
   try {
     const { email, contraseña } = req.body;
@@ -85,6 +87,7 @@ exports.login = async (req, res) => {
   }
 };
 
+// GET /api/auth/verificar
 exports.verificarToken = (req, res) => {
   res.json({
     valido: true,

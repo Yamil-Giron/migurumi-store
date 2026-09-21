@@ -45,6 +45,7 @@ exports.crearProducto = async (req, res) => {
       stock,
       imagenesUrl,
       especificaciones,
+      variantes,      // ← NUEVO
       activo,
       destacado,
       vendedor,
@@ -79,6 +80,7 @@ exports.crearProducto = async (req, res) => {
       stock,
       imagenesUrl,
       especificaciones,
+      variantes: variantes ?? [],   // ← NUEVO
       activo,
       destacado,
       vendedor,
@@ -168,11 +170,16 @@ exports.actualizarProducto = async (req, res) => {
       datos.slug = await generarSlugUnico(datos.nombre, req.params.id);
     }
 
-    const producto = await Producto.findByIdAndUpdate(
-      req.params.id,
-      datos,
-      { new: true, runValidators: true }
-    ).populate('categoriaId', 'nombre slug');
+    // Asegurar que "variantes" siempre sea un array si viene
+    if (datos.variantes && !Array.isArray(datos.variantes)) {
+      datos.variantes = [];
+    }
+
+const producto = await Producto.findByIdAndUpdate(
+  req.params.id,
+  datos,
+  { returnDocument: 'after', runValidators: true }   // ← nuevo
+).populate('categoriaId', 'nombre slug');
 
     if (!producto) {
       return res.status(404).json({ error: 'Producto no encontrado' });
