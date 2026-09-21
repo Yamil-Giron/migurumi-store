@@ -6,34 +6,40 @@ const Usuario = require('../models/Usuario');
 const crearAdmin = async () => {
   await connectDB();
 
-  const email = process.argv[2] || 'admin@migurumi.com';
-  const contraseña = process.argv[3] || 'Admin123!';
-  const nombre = process.argv[4] || 'Administrador';
+  const email = process.argv[2] || 'migurumi@store.com';
+  const contraseña = process.argv[3] || '123456';
+  const nombre = process.argv[4] || 'Admin Migurumi';
 
   try {
     const existente = await Usuario.findOne({ email });
+
     if (existente) {
-      console.log('⚠️  Ya existe un usuario con ese email:', email);
-      console.log('   Rol actual:', existente.rol);
-      process.exit(0);
+      // Si existe, forzamos rol admin y actualizamos contraseña
+      existente.rol = 'administrador';
+      existente.contraseña = contraseña;   // se hashea por el pre('save')
+      await existente.save();
+      console.log('✅ Usuario existente ascendido a administrador:');
+      console.log('   Email:', existente.email);
+      console.log('   Rol:', existente.rol);
+    } else {
+      const admin = await Usuario.create({
+        nombre,
+        email,
+        contraseña,
+        rol: 'administrador',
+      });
+      console.log('✅ Admin creado:');
+      console.log('   Email:', admin.email);
+      console.log('   Nombre:', admin.nombre);
+      console.log('   Rol:', admin.rol);
     }
 
-    const admin = await Usuario.create({
-      nombre,
-      email,
-      contraseña,
-      rol: 'administrador',
-    });
-
-    console.log('✅ Admin creado:');
-    console.log('   Email:', admin.email);
-    console.log('   Nombre:', admin.nombre);
-    console.log('   Rol:', admin.rol);
-    console.log('   ⚠️  Cambiá la contraseña en producción.');
+    console.log('');
+    console.log('⚠️  Cambiá la contraseña después de loguearte.');
   } catch (err) {
     console.error('❌ Error:', err.message);
   } finally {
-    mongoose.connection.close();
+    await mongoose.connection.close();
   }
 };
 

@@ -37,7 +37,7 @@
   font-size: 0.9rem;
   font-weight: 600;
   font-family: var(--font-texto);
-  transition: background 0.2s, transform 0.1s;
+  transition: background 0.2s;
 }
 
 .btn-primario {
@@ -63,20 +63,6 @@
 }
 .btn-peligro:hover {
   background: #b91c1c;
-}
-
-.btn-secundario {
-  padding: 0.5rem 1rem;
-  background: var(--color-rosa);
-  color: var(--color-blanco);
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-.btn-secundario:hover {
-  background: #e089a3;
 }
 
 .btn:disabled {
@@ -111,22 +97,16 @@
   color: var(--color-texto);
 }
 
-.celda-producto {
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
+.descripcion-cat {
+  font-size: 0.8rem;
+  color: var(--color-texto-suave);
+  margin: 0.25rem 0 0;
 }
 
-.celda-producto img {
-  width: 40px;
-  height: 40px;
-  object-fit: cover;
-  border-radius: var(--radio-suave);
-}
-
-.stock-bajo {
-  color: #b23b3b;
-  font-weight: 600;
+.slug {
+  font-family: monospace;
+  font-size: 0.8rem;
+  color: var(--color-texto-suave);
 }
 
 .etiqueta {
@@ -178,7 +158,6 @@
    MODALES
    ============================================ */
 
-/* Overlay */
 .modal-fondo {
   position: fixed;
   inset: 0;
@@ -196,7 +175,6 @@
   to   { opacity: 1; }
 }
 
-/* Modal formulario */
 .modal-formulario {
   background: var(--color-blanco);
   border-radius: var(--radio-grande);
@@ -247,18 +225,6 @@
   box-shadow: 0 0 0 3px rgba(245, 161, 184, 0.15);
 }
 
-/* Modal formulario grande (con variantes) */
-.modal-grande {
-  max-width: 720px;
-  width: 95%;
-}
-
-.fila-doble {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
 .fila-checks {
   display: flex;
   gap: 1.5rem;
@@ -285,56 +251,6 @@
   justify-content: flex-end;
   gap: 0.8rem;
   margin-top: 0.5rem;
-}
-
-/* ===== Sección de variantes ===== */
-.seccion-variantes {
-  margin: 1rem 0;
-  padding: 1rem;
-  background: var(--color-crema);
-  border: 1px solid var(--color-gris);
-  border-radius: var(--radio-suave);
-}
-
-.variantes-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
-}
-
-.variantes-header h3 {
-  margin: 0;
-  font-size: 0.95rem;
-  color: var(--color-texto);
-}
-
-.hint {
-  font-size: 0.75rem;
-  color: var(--color-texto-suave);
-  margin: 0.5rem 0;
-}
-
-.variante-fila {
-  display: grid;
-  grid-template-columns: 1.2fr 1.2fr 0.8fr 1fr auto;
-  gap: 0.5rem;
-  align-items: center;
-  margin-top: 0.5rem;
-}
-
-.variante-fila input {
-  padding: 0.5rem 0.7rem;
-  border: 1px solid var(--color-gris);
-  border-radius: var(--radio-suave);
-  font-size: 0.8rem;
-  background: var(--color-blanco);
-  color: var(--color-texto);
-}
-
-.variante-fila input:focus {
-  outline: none;
-  border-color: var(--color-rosa);
 }
 
 /* Modal confirmar */
@@ -372,12 +288,5 @@
 @media (max-width: 640px) {
   .admin-header h1 {
     font-size: 1.5rem;
-  }
-  .variante-fila {
-    grid-template-columns: 1fr 1fr;
-  }
-  .variante-fila button {
-    grid-column: span 2;
-    justify-self: end;
   }
 }

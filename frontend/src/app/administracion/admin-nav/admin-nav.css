@@ -1,0 +1,43 @@
+.admin-nav {
+  background: #faf5f5;
+  border-bottom: 1px solid #f0e5e5;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.admin-nav-contenedor {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  gap: 8px;
+}
+
+.admin-tab {
+  display: inline-block;
+  padding: 16px 20px;
+  color: #8a7a7a;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.admin-tab:hover {
+  color: #3c1213;
+  background: #f5e8e8;
+}
+
+.admin-tab.activo {
+  color: #d97706;
+  border-bottom-color: #d97706;
+}
+
+.admin-tab.deshabilitado {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}

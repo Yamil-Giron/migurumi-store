@@ -1,64 +1,141 @@
-// src/app/servicios/carrito.service.ts
-import { Injectable, inject, PLATFORM_ID } from '@angular/core';
+import { Injectable, signal, computed, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Producto } from './producto.model';
-import { BehaviorSubject, Observable } from 'rxjs';
 
-@Injectable({
-  providedIn: 'root'
-})
+export interface VarianteSeleccionada {
+  varianteId: string;
+  color: string;
+  medida: string;
+  precioExtra: number;
+}
+
+export interface ItemCarrito {
+  id: string;
+  productoId: string;
+  nombre: string;
+  slug: string;
+  imagenUrl: string;
+  precioUnitario: number;
+  cantidad: number;
+  variante?: VarianteSeleccionada;
+  stockDisponible: number;
+}
+
+@Injectable({ providedIn: 'root' })
 export class CarritoService {
   private platformId = inject(PLATFORM_ID);
+  private storageKey = 'migurumi_carrito';
 
-  private items: Producto[] = [];
-  private carritoSubject = new BehaviorSubject<Producto[]>([]);
+  items = signal<ItemCarrito[]>(this.leerStorage());
 
-  /** Observable del carrito (compatibilidad) */
-  getCarrito(): Observable<Producto[]> {
-    return this.carritoSubject.asObservable();
+  cantidadTotal = computed(() =>
+    this.items().reduce((acc, i) => acc + i.cantidad, 0)
+  );
+
+  subtotal = computed(() =>
+    this.items().reduce((acc, i) => acc + i.precioUnitario * i.cantidad, 0)
+  );
+
+  agregarProducto(
+    producto: Producto,
+    cantidad: number = 1,
+    variante?: VarianteSeleccionada
+  ): void {
+    if (!producto._id) return;
+
+    const precioUnitario = producto.precio + (variante?.precioExtra ?? 0);
+    const stockDisponible = this.getStockDisponible(producto, variante);
+    if (stockDisponible <= 0) return;
+
+    const actuales = this.items();
+    const indexExistente = actuales.findIndex(
+      (item) =>
+        item.productoId === producto._id &&
+        (item.variante?.varianteId ?? null) === (variante?.varianteId ?? null)
+    );
+
+    if (indexExistente >= 0) {
+      const existente = actuales[indexExistente];
+      const nuevaCantidad = Math.min(
+        existente.cantidad + cantidad,
+        existente.stockDisponible
+      );
+      const nuevos = [...actuales];
+      nuevos[indexExistente] = { ...existente, cantidad: nuevaCantidad };
+      this.items.set(nuevos);
+    } else {
+      const nuevoItem: ItemCarrito = {
+        id: this.generarId(),
+        productoId: producto._id,
+        nombre: producto.nombre,
+        slug: producto.slug,
+        imagenUrl: producto.imagenesUrl?.[0] ?? 'assets/placeholder.png',
+        precioUnitario,
+        cantidad: Math.min(cantidad, stockDisponible),
+        variante,
+        stockDisponible,
+      };
+      this.items.set([...actuales, nuevoItem]);
+    }
+
+    this.guardarStorage();
   }
 
-  /** Cantidad total de items (para el badge del header) */
-  get cantidadTotal(): number {
-    return this.items.length;
+  actualizarCantidad(itemId: string, cantidad: number): void {
+    if (cantidad <= 0) {
+      this.eliminarItem(itemId);
+      return;
+    }
+    const nuevos = this.items().map((item) =>
+      item.id === itemId
+        ? { ...item, cantidad: Math.min(cantidad, item.stockDisponible) }
+        : item
+    );
+    this.items.set(nuevos);
+    this.guardarStorage();
   }
 
-  /** Alias de agregarProducto (compatibilidad con producto-card) */
-  agregar(producto: Producto, cantidad = 1): void {
-    this.agregarProducto(producto);
-  }
-
-  agregarProducto(producto: Producto): void {
-    this.items.push(producto);
-    this.carritoSubject.next([...this.items]);
-    this.guardarLocal();
-  }
-
-  eliminarProducto(index: number): void {
-    this.items.splice(index, 1);
-    this.carritoSubject.next([...this.items]);
-    this.guardarLocal();
-  }
-
-  quitar(productoId: string): void {
-    this.items = this.items.filter((p) => p._id !== productoId);
-    this.carritoSubject.next([...this.items]);
-    this.guardarLocal();
+  eliminarItem(itemId: string): void {
+    this.items.set(this.items().filter((i) => i.id !== itemId));
+    this.guardarStorage();
   }
 
   vaciarCarrito(): void {
-    this.items = [];
-    this.carritoSubject.next([]);
-    this.guardarLocal();
+    this.items.set([]);
+    this.guardarStorage();
   }
 
-  getTotal(): number {
-    return this.items.reduce((total, p) => total + p.precio, 0);
+  private getStockDisponible(
+    producto: Producto,
+    variante?: VarianteSeleccionada
+  ): number {
+    if (variante) {
+      const v = producto.variantes?.find((x) => x._id === variante.varianteId);
+      return v?.stock ?? 0;
+    }
+    return producto.stock ?? 0;
   }
 
-  private guardarLocal(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      localStorage.setItem('migurumi_carrito', JSON.stringify(this.items));
+  private generarId(): string {
+    return `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+  }
+
+  private guardarStorage(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    try {
+      localStorage.setItem(this.storageKey, JSON.stringify(this.items()));
+    } catch (e) {
+      console.error('Error guardando carrito:', e);
+    }
+  }
+
+  private leerStorage(): ItemCarrito[] {
+    if (!isPlatformBrowser(this.platformId)) return [];
+    try {
+      const raw = localStorage.getItem(this.storageKey);
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
     }
   }
 }

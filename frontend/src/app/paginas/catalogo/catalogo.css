@@ -4,53 +4,205 @@
   margin: 0 auto;
 }
 
+.catalogo-container h1 {
+  text-align: center;
+  color: #3c1213;
+  margin-bottom: 8px;
+}
+
+.catalogo-container > p {
+  text-align: center;
+  color: #8a7a7a;
+  margin-bottom: 24px;
+}
+
+/* ===== Grid de productos ===== */
 .productos-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.5rem;
   margin-top: 2rem;
 }
 
+/* ===== Card individual ===== */
 .producto-card {
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid #efe0e0;
+  border-radius: 12px;
   padding: 1rem;
   text-align: center;
-  transition: box-shadow 0.3s;
+  transition: transform 0.2s, box-shadow 0.2s;
+  height: 100%;
 }
 
 .producto-card:hover {
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
 }
 
 .producto-card img {
   width: 100%;
-  height: 200px;
+  height: 180px;
   object-fit: cover;
-  border-radius: 4px;
+  border-radius: 8px;
+  background: #faf5f5;
 }
 
 .producto-card h3 {
-  margin: 0.5rem 0;
-  color: #4A3A2B;
+  margin: 0.75rem 0 0.25rem;
+  color: #3c1213;
+  font-size: 15px;
+  font-weight: 600;
 }
 
-.precio {
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #F7C35C;
+.producto-card .categoria {
+  font-size: 11px;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin: 4px 0;
+  font-weight: 600;
 }
 
-button {
-  background-color: #F7C35C;
-  color: #2D2D2D;
+.producto-card .descripcion {
+  font-size: 13px;
+  color: #6b5b5b;
+  line-height: 1.4;
+  margin: 8px 0;
+  flex: 1;
+}
+
+.producto-card .precio {
+  font-size: 18px;
+  font-weight: 700;
+  color: #d97706;
+  margin: 8px 0;
+}
+
+/* ===== Botones de la card ===== */
+.btn-ver-detalle,
+.btn-agregar {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
   border: none;
-  padding: 0.5rem 1.5rem;
-  border-radius: 4px;
   cursor: pointer;
-  font-weight: bold;
+  font-weight: 600;
+  font-size: 14px;
+  text-align: center;
+  text-decoration: none;
+  transition: background 0.2s;
 }
 
-button:hover {
-  background-color: #e6b04a;
+.btn-ver-detalle {
+  background: #d97706;
+  color: #fff;
+}
+.btn-ver-detalle:hover {
+  background: #b45309;
+}
+
+.btn-agregar {
+  background: #f5a1b8;
+  color: #fff;
+}
+.btn-agregar:hover {
+  background: #e089a3;
+}
+
+/* ===== Buscador ===== */
+.buscador {
+  display: flex;
+  gap: 8px;
+  margin: 24px auto;
+  max-width: 560px;
+  padding: 0 16px;
+}
+
+.buscador input {
+  flex: 1;
+  padding: 14px 18px;
+  border: 1px solid #e5d5d5;
+  border-radius: 10px;
+  font-size: 15px;
+  background: #fff;
+  color: #3c1213;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.buscador input::placeholder {
+  color: #b5a5a5;
+}
+
+.buscador input:focus {
+  outline: none;
+  border-color: #f5a1b8;
+  box-shadow: 0 0 0 3px rgba(245, 161, 184, 0.15);
+}
+
+.buscador button {
+  padding: 0 18px;
+  background: #f5e8e8;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 15px;
+  color: #3c1213;
+  transition: background 0.2s;
+}
+
+.buscador button:hover {
+  background: #e8d5d5;
+}
+
+/* ===== Estados ===== */
+.loading,
+.error-message {
+  text-align: center;
+  padding: 48px 16px;
+  color: #8a7a7a;
+}
+
+.error-message {
+  color: #dc2626;
+}
+
+.sin-resultados {
+  text-align: center;
+  padding: 64px 16px;
+  color: #8a7a7a;
+}
+
+.sin-resultados p {
+  font-size: 16px;
+  margin-bottom: 16px;
+}
+
+.sin-resultados button {
+  padding: 12px 24px;
+  background: #f5a1b8;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.sin-resultados button:hover {
+  background: #e089a3;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 640px) {
+  .productos-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1rem;
+  }
+  .producto-card img {
+    height: 140px;
+  }
 }

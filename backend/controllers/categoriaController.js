@@ -1,23 +1,56 @@
 const Categoria = require('../models/Categoria');
 const Producto = require('../models/Producto');
 
+// Helper: generar slug desde un nombre
+const generarSlug = (nombre) => {
+  return nombre
+    .toString()
+    .toLowerCase()
+    .trim()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+};
+
+// Helper: slug único (agrega -2, -3, ... si ya existe)
+const generarSlugUnico = async (nombre, excluirId = null) => {
+  const base = generarSlug(nombre);
+  let slug = base;
+  let contador = 2;
+  while (true) {
+    const filtro = { slug };
+    if (excluirId) filtro._id = { $ne: excluirId };
+    const existente = await Categoria.findOne(filtro);
+    if (!existente) return slug;
+    slug = `${base}-${contador}`;
+    contador++;
+  }
+};
+
 // POST /api/categorias (admin)
 exports.crearCategoria = async (req, res) => {
   try {
     const { nombre, slug, descripcion, imagenPortada, orden, metaDescripcion, palabrasClaveMetatag } = req.body;
 
-    if (!nombre || !slug) {
-      return res.status(400).json({ error: 'Nombre y slug son requeridos' });
+    if (!nombre) {
+      return res.status(400).json({ error: 'El nombre es requerido' });
     }
 
-    const existe = await Categoria.findOne({ $or: [{ nombre }, { slug }] });
-    if (existe) {
-      return res.status(400).json({ error: 'Ya existe una categoría con ese nombre o slug' });
+    const existeNombre = await Categoria.findOne({ nombre });
+    if (existeNombre) {
+      return res.status(400).json({ error: 'Ya existe una categoría con ese nombre' });
     }
+
+    const slugFinal = slug
+      ? await generarSlugUnico(slug)
+      : await generarSlugUnico(nombre);
 
     const categoria = new Categoria({
       nombre,
-      slug,
+      slug: slugFinal,
       descripcion,
       imagenPortada,
       orden,
@@ -40,7 +73,6 @@ exports.crearCategoria = async (req, res) => {
 exports.obtenerCategorias = async (req, res) => {
   try {
     const filtro = {};
-    // Si no es admin, solo mostrar activas
     if (!req.user || req.user.rol !== 'administrador') {
       filtro.activa = true;
     }
@@ -73,10 +105,16 @@ exports.obtenerCategoriaPorId = async (req, res) => {
 // PUT /api/categorias/:id (admin)
 exports.actualizarCategoria = async (req, res) => {
   try {
+    const datos = { ...req.body };
+
+    if (datos.nombre) {
+      datos.slug = await generarSlugUnico(datos.nombre, req.params.id);
+    }
+
     const categoria = await Categoria.findByIdAndUpdate(
       req.params.id,
-      req.body,
-      { new: true, runValidators: true }
+      datos,
+      { returnDocument: 'after', runValidators: true }
     );
 
     if (!categoria) {
@@ -95,7 +133,6 @@ exports.actualizarCategoria = async (req, res) => {
 // DELETE /api/categorias/:id (admin)
 exports.eliminarCategoria = async (req, res) => {
   try {
-    // Verificar que no tenga productos asociados
     const productosAsociados = await Producto.countDocuments({ categoriaId: req.params.id });
     if (productosAsociados > 0) {
       return res.status(400).json({

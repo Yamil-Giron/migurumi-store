@@ -1,43 +1,94 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ProductoService, Producto } from '../../servicios/producto.service';
+import { FormsModule } from '@angular/forms';
+import { ProductoService } from '../../servicios/producto.service';
+import { Producto } from '../../servicios/producto.model';
 import { CarritoService } from '../../servicios/carrito.service';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-catalogo',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './catalogo.html',
-  styleUrls: ['./catalogo.css']
+  styleUrls: ['./catalogo.css'],
 })
 export class Catalogo implements OnInit {
-  productos: Producto[] = [];
-  cargando = true;
-  error = '';
+  private productoService = inject(ProductoService);
+  private carritoService = inject(CarritoService);
 
-  constructor(
-    private productoService: ProductoService,
-    private carritoService: CarritoService,
-    private cdr: ChangeDetectorRef   // ← NUEVO
-  ) { }
+  productos = signal<Producto[]>([]);
+  productosFiltrados = signal<Producto[]>([]);
+  cargando = signal(true);
+  error = signal('');
+  terminoBusqueda = signal('');
 
   ngOnInit(): void {
-    console.log('[Catalogo] ngOnInit ejecutado');
+    this.cargarProductos();
+  }
+
+  cargarProductos(): void {
+    this.cargando.set(true);
+    this.error.set('');
+
     this.productoService.getProductos().subscribe({
       next: (data: Producto[]) => {
-        console.log('[Catalogo] NEXT recibido. Cantidad:', data?.length);
-        this.productos = data;
-        this.cargando = false;
-        console.log('[Catalogo] cargando =', this.cargando, '| productos =', this.productos.length);
-        this.cdr.detectChanges();   // ← fuerza redibujado inmediato
+        this.productos.set(data);
+        this.productosFiltrados.set(data);
+        this.cargando.set(false);
       },
       error: (err: any) => {
-        console.error('[Catalogo] ERROR:', err);
-        this.error = 'Error al cargar los productos. Intenta nuevamente.';
-        this.cargando = false;
-        this.cdr.detectChanges();
-      }
+        console.error('[Catalogo] Error:', err);
+        this.error.set('Error al cargar los productos. Intenta nuevamente.');
+        this.cargando.set(false);
+      },
     });
+  }
+
+  buscar(): void {
+    const termino = this.terminoBusqueda().toLowerCase().trim();
+
+    if (!termino) {
+      this.productosFiltrados.set(this.productos());
+      return;
+    }
+
+    const filtrados = this.productos().filter((p) => {
+      const nombre = p.nombre?.toLowerCase() ?? '';
+      const descripcion = p.descripcion?.toLowerCase() ?? '';
+      const categoria =
+        typeof p.categoriaId === 'object'
+          ? (p.categoriaId?.nombre?.toLowerCase() ?? '')
+          : '';
+
+      return (
+        nombre.includes(termino) ||
+        descripcion.includes(termino) ||
+        categoria.includes(termino)
+      );
+    });
+
+    this.productosFiltrados.set(filtrados);
+  }
+
+  limpiarBusqueda(): void {
+    this.terminoBusqueda.set('');
+    this.productosFiltrados.set(this.productos());
+  }
+
+  nombreCategoria(producto: Producto): string {
+    if (!producto.categoriaId) return '—';
+    if (typeof producto.categoriaId === 'object') {
+      return producto.categoriaId.nombre ?? '—';
+    }
+    return '—';
+  }
+
+  formatearPrecio(precio: number): string {
+    return new Intl.NumberFormat('es-AR', {
+      style: 'currency',
+      currency: 'ARS',
+    }).format(precio ?? 0);
   }
 
   agregarAlCarrito(producto: Producto): void {

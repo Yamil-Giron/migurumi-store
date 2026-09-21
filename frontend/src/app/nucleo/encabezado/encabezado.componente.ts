@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../servicios/auth.service';
+import { CarritoService } from '../../servicios/carrito.service';
 
 @Component({
   selector: 'app-encabezado',
@@ -12,5 +13,5 @@ import { AuthService } from '../../servicios/auth.service';
 })
 export class EncabezadoComponente {
   auth = inject(AuthService);
-  carritoCount = 0;
+  carrito = inject(CarritoService);
 }

@@ -1,1 +1,160 @@
-<p>perfil-usuario works!</p>
+<div class="perfil-container">
+
+  <div class="perfil-header">
+    <h1>Mi cuenta</h1>
+    <p class="subtitulo">Administrá tu información personal y de envío</p>
+  </div>
+
+  <div *ngIf="usuario() as u" class="perfil-layout">
+
+    <!-- ===== Columna izquierda: foto + ID ===== -->
+    <aside class="perfil-sidebar">
+      <div class="avatar-wrapper">
+        <img
+            [src]="u.fotoPerfil || getAvatarUrl(u.nombre)"
+            [alt]="u.nombre"
+            class="avatar"
+        />
+        <button
+          *ngIf="editando()"
+          type="button"
+          class="btn-cambiar-foto"
+          title="Cambiar foto (por URL)"
+        >
+          📷
+        </button>
+      </div>
+
+      <h2 class="perfil-nombre">{{ u.nombre }}</h2>
+      <p class="perfil-email">{{ u.email }}</p>
+
+      <!-- ID de usuario (para soporte) -->
+      <div class="id-usuario">
+        <span class="label">ID de usuario</span>
+        <div class="id-row">
+          <code>{{ u.id }}</code>
+          <button type="button" class="btn-copiar" (click)="copiarId()" title="Copiar ID">
+            {{ copiadoId() ? '✓' : '📋' }}
+          </button>
+        </div>
+        <p class="id-hint">Compartí este ID con soporte técnico si necesitás ayuda.</p>
+      </div>
+
+      <!-- Rol -->
+      <div class="rol-badge" [class.admin]="u.rol === 'administrador'">
+        {{ u.rol === 'administrador' ? '👑 Administrador' : '👤 Cliente' }}
+      </div>
+    </aside>
+
+    <!-- ===== Columna derecha: datos editables ===== -->
+    <main class="perfil-main">
+      <form [formGroup]="form" (ngSubmit)="guardar()">
+
+        <!-- Datos personales -->
+        <section class="card">
+          <div class="card-header">
+            <h3>Datos personales</h3>
+            <button
+              *ngIf="!editando()"
+              type="button"
+              class="btn-editar"
+              (click)="activarEdicion()"
+            >
+              ✏️ Editar
+            </button>
+          </div>
+
+          <div class="campos-grid">
+            <label class="campo">
+              <span>Nombre</span>
+              <input type="text" formControlName="nombre" [readonly]="!editando()" />
+            </label>
+
+            <label class="campo">
+              <span>Email</span>
+              <input type="email" [value]="u.email" readonly />
+            </label>
+
+            <label class="campo">
+              <span>Teléfono</span>
+              <input type="tel" formControlName="telefono" [readonly]="!editando()" placeholder="+56 9 1234 5678" />
+            </label>
+
+            <label class="campo" *ngIf="editando()">
+              <span>URL de foto de perfil</span>
+              <input type="text" formControlName="fotoPerfil" placeholder="https://..." />
+            </label>
+          </div>
+        </section>
+
+        <!-- Dirección -->
+        <section class="card">
+          <div class="card-header">
+            <h3>Dirección de envío</h3>
+          </div>
+
+          <div class="campos-grid">
+            <label class="campo campo-full">
+              <span>Calle y número</span>
+              <input type="text" formControlName="calle" [readonly]="!editando()" placeholder="Av. Siempre Viva 742" />
+            </label>
+
+            <label class="campo">
+              <span>Ciudad</span>
+              <input type="text" formControlName="ciudad" [readonly]="!editando()" placeholder="Santiago" />
+            </label>
+
+            <label class="campo">
+              <span>Región</span>
+              <input type="text" formControlName="region" [readonly]="!editando()" placeholder="Metropolitana" />
+            </label>
+
+            <label class="campo">
+              <span>Código postal</span>
+              <input type="text" formControlName="codigoPostal" [readonly]="!editando()" placeholder="8320000" />
+            </label>
+
+            <label class="campo">
+              <span>País</span>
+              <input type="text" [value]="u.direccion?.pais || 'Chile'" readonly />
+            </label>
+          </div>
+
+          <!-- Botones de guardar / cancelar -->
+          <div class="acciones-form" *ngIf="editando()">
+            <button type="button" class="btn btn-outline" (click)="cancelarEdicion()">Cancelar</button>
+            <button type="submit" class="btn btn-primario">Guardar cambios</button>
+          </div>
+        </section>
+
+        <!-- Mensaje guardado -->
+        <p class="mensaje-guardado" *ngIf="guardado()">✓ Cambios guardados</p>
+      </form>
+
+      <!-- Cerrar sesión -->
+      <section class="card card-peligro">
+        <div>
+          <h3>Cerrar sesión</h3>
+          <p class="card-hint">Vas a salir de tu cuenta en este dispositivo.</p>
+        </div>
+        <button type="button" class="btn btn-peligro" (click)="abrirConfirmarLogout()">
+          Cerrar sesión
+        </button>
+      </section>
+    </main>
+
+  </div>
+
+  <!-- Modal confirmar logout -->
+  <div class="modal-fondo" *ngIf="mostrarConfirmarLogout()" (click)="cancelarLogout()">
+    <div class="modal-confirmar" (click)="$event.stopPropagation()">
+      <h3>¿Cerrar sesión?</h3>
+      <p>Vas a salir de tu cuenta. Vas a poder iniciar sesión nuevamente cuando quieras.</p>
+      <div class="modal-acciones">
+        <button type="button" class="btn btn-outline" (click)="cancelarLogout()">Cancelar</button>
+        <button type="button" class="btn btn-peligro" (click)="confirmarLogout()">Sí, cerrar sesión</button>
+      </div>
+    </div>
+  </div>
+
+</div>
