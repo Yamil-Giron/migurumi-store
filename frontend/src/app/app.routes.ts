@@ -12,7 +12,8 @@ import { adminGuard } from './guards/admin.guard';
 import { ProductoDetalle } from './paginas/producto-detalle/producto-detalle';
 import { GestionCategorias } from './administracion/gestion-categorias/gestion-categorias';
 import { PedidoPersonalizado } from './paginas/personalizados/pedido-personalizado';
-
+import { GestionPedidos } from './administracion/gestion-pedidos/gestion-pedidos';
+import { MisPedidos } from './paginas/mis-pedidos/mis-pedidos';
 export const routes: Routes = [
   { path: '', component: Inicio },
   { path: 'personalizados', component: PedidoPersonalizado },
@@ -22,6 +23,7 @@ export const routes: Routes = [
   { path: 'nosotros', component: SobreNosotros },
   { path: 'carrito', component: CarritoDeCompras },
   { path: 'perfil', component: PerfilUsuario },
+  { path: 'mis-pedidos', component: MisPedidos },
   { path: 'login', component: Login },
   { path: 'registro', component: Registro },
   {
@@ -32,6 +34,11 @@ export const routes: Routes = [
   {
     path: 'admin/gestion-categorias',
     component: GestionCategorias,
+    canActivate: [adminGuard],
+  },
+    {
+    path: 'admin/pedidos',
+    component: GestionPedidos,
     canActivate: [adminGuard],
   },
   { path: '**', redirectTo: '' },

@@ -20,4 +20,16 @@ export class PedidoService {
       .get<{ pedidos: Pedido[] }>(`${this.apiUrl}/mios`)
       .pipe(map((res) => res.pedidos));
   }
+
+    getPedidosAdmin(): Observable<Pedido[]> {
+    return this.http
+      .get<{ pedidos: Pedido[] }>(this.apiUrl)
+      .pipe(map((res) => res.pedidos));
+  }
+
+  actualizarEstado(id: string, estado: string): Observable<Pedido> {
+    return this.http
+      .put<{ mensaje: string; pedido: Pedido }>(`${this.apiUrl}/${id}/estado`, { estado })
+      .pipe(map((res) => res.pedido));
+  }
 }

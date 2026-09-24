@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ProductoService } from '../../servicios/producto.service';
@@ -14,42 +14,37 @@ import { ProductoCard } from '../../nucleo/producto-card/producto-card';
 })
 export class Inicio implements OnInit {
   private productoService = inject(ProductoService);
-  private cdr = inject(ChangeDetectorRef);
 
-  productosDestacados: Producto[] = [];
-  cargando = true;
-  error: string | null = null;
+  productosDestacados = signal<Producto[]>([]);
+  cargando = signal(true);
+  error = signal<string | null>(null);
 
   galeriaClientes = [
-    { nombre: 'Conejita', img: 'assets/galeria/coneja.png' },
-    { nombre: 'Rana', img: 'assets/galeria/rana.png' },
-    { nombre: 'León', img: 'assets/galeria/leon.png' },
-    { nombre: 'Elefante', img: 'assets/galeria/elefante.png' },
-    { nombre: 'Perrito', img: 'assets/galeria/perrito.png' },
-    { nombre: 'Cerdito', img: 'assets/galeria/cerdito.png' }
+    { nombre: 'Amigurumi 1', img: 'assets/galeria/personalizado1.png' },
+    { nombre: 'Amigurumi 2', img: 'assets/galeria/personalizado2.png' },
+    { nombre: 'Amigurumi 3', img: 'assets/galeria/personalizado3.jpg' },
+    { nombre: 'Amigurumi 4', img: 'assets/galeria/personalizado4.jpg' },
+    { nombre: 'Amigurumi 5', img: 'assets/galeria/personalizado5.jpg' },
+    { nombre: 'Amigurumi 6', img: 'assets/galeria/personalizado6.png' },
   ];
 
   ngOnInit(): void {
     this.productoService.getProductos({ destacado: true }).subscribe({
       next: (productos) => {
-        this.productosDestacados = productos.slice(0, 4);
-        this.cargando = false;
-        this.cdr.detectChanges();  // ← Forzar re-render
+        this.productosDestacados.set(productos.slice(0, 4));
+        this.cargando.set(false);
       },
       error: (err) => {
         console.error('Error cargando destacados:', err);
-        // Fallback: cargar todos
         this.productoService.getProductos().subscribe({
           next: (todos) => {
-            this.productosDestacados = todos.slice(0, 4);
-            this.cargando = false;
-            this.cdr.detectChanges();  // ← Forzar re-render
+            this.productosDestacados.set(todos.slice(0, 4));
+            this.cargando.set(false);
           },
           error: () => {
-            this.error = 'No se pudieron cargar los productos';
-            this.cargando = false;
-            this.cdr.detectChanges();  // ← Forzar re-render
-          }
+            this.error.set('No se pudieron cargar los productos');
+            this.cargando.set(false);
+          },
         });
       },
     });

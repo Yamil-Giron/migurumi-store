@@ -20,22 +20,7 @@
       </div>
     </div>
     <div class="hero-ilustracion">
-      <div class="hero-circulo"></div>
-      <svg class="hero-conejo" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
-        <ellipse cx="110" cy="60" rx="14" ry="40" fill="#fcf3f2" stroke="#3c1213" stroke-width="3"/>
-        <ellipse cx="110" cy="60" rx="7" ry="25" fill="#f5a1b8"/>
-        <ellipse cx="170" cy="60" rx="14" ry="40" fill="#fcf3f2" stroke="#3c1213" stroke-width="3"/>
-        <ellipse cx="170" cy="60" rx="7" ry="25" fill="#f5a1b8"/>
-        <circle cx="140" cy="160" r="60" fill="#fcf3f2" stroke="#3c1213" stroke-width="3"/>
-        <circle cx="120" cy="150" r="5" fill="#3c1213"/>
-        <circle cx="160" cy="150" r="5" fill="#3c1213"/>
-        <circle cx="115" cy="175" r="8" fill="#f5a1b8" opacity="0.8"/>
-        <circle cx="165" cy="175" r="8" fill="#f5a1b8" opacity="0.8"/>
-        <ellipse cx="140" cy="165" rx="4" ry="3" fill="#3c1213"/>
-        <path d="M140 168 Q135 175 130 172 M140 168 Q145 175 150 172" stroke="#3c1213" stroke-width="2" fill="none" stroke-linecap="round"/>
-        <ellipse cx="140" cy="240" rx="55" ry="45" fill="#fcf3f2" stroke="#3c1213" stroke-width="3"/>
-        <path d="M140 215 C 130 205, 115 220, 140 240 C 165 220, 150 205, 140 215 Z" fill="#f5a1b8" stroke="#3c1213" stroke-width="2"/>
-      </svg>
+      <img src="assets/galeria/iconogrande.svg" alt="Migurumi Store" class="logo-conejo" />
     </div>
   </div>
 </section>
@@ -49,26 +34,26 @@
       <span class="adorno">♥</span>
     </div>
 
-    <div *ngIf="cargando" class="estado-mensaje">
+        <div *ngIf="cargando()" class="estado-mensaje">
       <p>Cargando productos...</p>
     </div>
 
-    <div *ngIf="error" class="estado-mensaje error">
-      <p>{{ error }}</p>
+    <div *ngIf="error()" class="estado-mensaje error">
+      <p>{{ error() }}</p>
     </div>
 
-    <div *ngIf="!cargando && !error" class="grid-productos">
+    <div *ngIf="!cargando() && !error()" class="grid-productos">
   <app-producto-card
-    *ngFor="let producto of productosDestacados"
+    *ngFor="let producto of productosDestacados()"
     [producto]="producto"
     variante="compacto"
   ></app-producto-card>
-</div>
-    <div *ngIf="!cargando && !error && productosDestacados.length === 0" class="estado-mensaje">
+    </div>
+    <div *ngIf="!cargando() && !error() && productosDestacados().length === 0" class="estado-mensaje">
       <p>Pronto tendremos nuevos productos disponibles ✨</p>
     </div>
 
-    <div class="ver-todos" *ngIf="productosDestacados.length > 0">
+    <div class="ver-todos" *ngIf="productosDestacados().length > 0">
       <a routerLink="/tienda" class="btn btn-outline">Ver todos los productos →</a>
     </div>
   </div>
@@ -79,7 +64,7 @@
   <div class="contenedor">
     <div class="titulo-seccion">
       <span class="adorno">♥</span>
-      <h2>Pedidos personalizados</h2>
+      <h2>Pasos para adoptar</h2>
       <span class="adorno">♥</span>
     </div>
 
@@ -96,7 +81,9 @@
         <p>Cuéntanos cómo imaginas tu amigurumi ideal.</p>
       </div>
 
-      <div class="flecha">→</div>
+    <div class="flecha">
+        <img src="assets/Flecha.svg" alt="flecha" />
+      </div>
 
       <div class="paso">
         <div class="paso-circulo">
@@ -109,7 +96,9 @@
         <p>Creamos tu amigurumi único y especial.</p>
       </div>
 
-      <div class="flecha">→</div>
+      <div class="flecha">
+        <img src="assets/Flecha.svg" alt="flecha" />
+      </div>
 
       <div class="paso">
         <div class="paso-circulo">
@@ -131,7 +120,7 @@
   <div class="contenedor">
     <div class="titulo-seccion">
       <span class="adorno">♥</span>
-      <h2>Galería de clientes</h2>
+      <h2>Pedidos personalizados</h2>
       <span class="adorno">♥</span>
     </div>
 

@@ -90,3 +90,60 @@
 
 <div *ngIf="cargando()" class="estado-mensaje">Cargando producto...</div>
 <div *ngIf="error()" class="estado-mensaje error">{{ error() }}</div>
+
+<section class="resenas-section">
+  <h2>Reseñas <span *ngIf="producto()?.calificacionPromedio">⭐ {{ producto()!.calificacionPromedio }}/5</span></h2>
+
+  <div *ngIf="cargandoResenas()">Cargando reseñas...</div>
+
+  <div *ngIf="!cargandoResenas() && resenas().length === 0" class="sin-resenas">
+    Aún no hay reseñas para este producto. ¡Sé el primero en opinar!
+  </div>
+
+  <div *ngFor="let r of resenas()" class="resena-item">
+    <div class="resena-header">
+      <strong>{{ r.usuarioNombre }}</strong>
+      <span>{{ '⭐'.repeat(r.calificacion) }}</span>
+    </div>
+    <h4 *ngIf="r.titulo">{{ r.titulo }}</h4>
+    <p>{{ r.comentario }}</p>
+  </div>
+
+  <div class="resena-form" *ngIf="estaAutenticado(); else loginParaResena">
+    <h3>Deja tu reseña</h3>
+
+    <div *ngIf="resenaExitosa()" class="resena-exito">¡Gracias por tu reseña!</div>
+
+    <label>
+      Calificación:
+      <select [(ngModel)]="nuevaResena.calificacion">
+        <option [value]="5">5 - Excelente</option>
+        <option [value]="4">4 - Muy bueno</option>
+        <option [value]="3">3 - Bueno</option>
+        <option [value]="2">2 - Regular</option>
+        <option [value]="1">1 - Malo</option>
+      </select>
+    </label>
+
+    <input type="text" placeholder="Título (opcional)" [(ngModel)]="nuevaResena.titulo" />
+
+    <textarea placeholder="Cuéntanos qué te pareció el producto" [(ngModel)]="nuevaResena.comentario" rows="3"></textarea>
+
+    <p *ngIf="errorResena()" class="resena-error">{{ errorResena() }}</p>
+
+    <button
+      type="button"
+      class="btn btn-primario"
+      [disabled]="enviandoResena() || !nuevaResena.comentario"
+      (click)="enviarResena()"
+    >
+      {{ enviandoResena() ? 'Enviando...' : 'Publicar reseña' }}
+    </button>
+  </div>
+
+  <ng-template #loginParaResena>
+    <p class="resena-login-aviso">
+      <a routerLink="/login">Inicia sesión</a> para dejar tu reseña.
+    </p>
+  </ng-template>
+</section>
