@@ -1,0 +1,34 @@
+<div class="mis-pedidos-container">
+  <h1>Mis compras</h1>
+
+  <div *ngIf="cargando()" class="estado-mensaje">Cargando tus pedidos...</div>
+  <div *ngIf="error()" class="estado-mensaje error">{{ error() }}</div>
+
+  <div *ngIf="!cargando() && !error() && pedidos().length === 0" class="estado-mensaje">
+    Aún no tienes pedidos. <a routerLink="/tienda">Ver catálogo</a>
+  </div>
+
+  <div *ngFor="let pedido of pedidos()" class="pedido-card">
+    <div class="pedido-header">
+      <div>
+        <strong>{{ pedido.numeroPedido }}</strong>
+        <span class="fecha">{{ formatearFecha(pedido.createdAt) }}</span>
+      </div>
+      <span [class]="claseEstado(pedido.estado)">{{ pedido.estado }}</span>
+    </div>
+
+    <div class="pedido-items">
+      <div *ngFor="let item of pedido.items">{{ item.cantidad }}x {{ item.nombre }}</div>
+    </div>
+
+    <div *ngIf="envioDe(pedido) as envio" class="pedido-envio">
+      📦 Enviado por <strong>{{ envio.transportista }}</strong> — N° seguimiento:
+      <strong>{{ envio.numeroSeguimiento }}</strong>
+      <span [class]="claseEstado(envio.estado)">{{ envio.estado }}</span>
+    </div>
+
+    <div class="pedido-footer">
+      <span>Total: {{ formatearPrecio(pedido.total) }}</span>
+    </div>
+  </div>
+</div>

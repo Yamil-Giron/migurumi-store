@@ -5,11 +5,12 @@ import { ProductoService } from '../../servicios/producto.service';
 import { Producto } from '../../servicios/producto.model';
 import { CarritoService } from '../../servicios/carrito.service';
 import { RouterModule } from '@angular/router';
+import { ProductoCard } from '../../nucleo/producto-card/producto-card';
 
 @Component({
   selector: 'app-catalogo',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, ProductoCard],
   templateUrl: './catalogo.html',
   styleUrls: ['./catalogo.css'],
 })

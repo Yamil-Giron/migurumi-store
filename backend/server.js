@@ -27,6 +27,8 @@ app.use('/api/productos', require('./routes/producto.routes'));
 app.use('/api/pedidos-personalizados', require('./routes/pedidoPersonalizado.routes'));
 app.use('/api/pedidos-personalizados', require('./routes/pedidoPersonalizado.routes'));
 app.use('/api/pedidos', require('./routes/pedido.routes'));
+app.use('/api/resenas', require('./routes/resena.routes'));
+app.use('/api/envios', require('./routes/envio.routes'));
 app.get('/api/test', (req, res) => {
   res.json({ mensaje: 'Backend funcionando ✅' });
 });

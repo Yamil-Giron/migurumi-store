@@ -192,9 +192,15 @@
 }
 
 .flecha {
-  color: var(--color-rosa);
-  font-size: 1.5rem;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flecha img {
+  width: clamp(28px, 4vw, 48px);
+  height: auto;
+  display: block;
 }
 
 /* ============ GALERÍA CLIENTES ============ */
@@ -293,9 +299,9 @@
 }
 
 /* ============ RESPONSIVE ============ */
-@media (max-width: 1024px) {
-  .grid-productos {
-    grid-template-columns: repeat(3, 1fr);
+@media (max-width: 768px) {
+  .flecha img {
+    transform: rotate(90deg);
   }
 }
 

@@ -5,6 +5,9 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ProductoService } from '../../servicios/producto.service';
 import { CarritoService, VarianteSeleccionada } from '../../servicios/carrito.service';
 import { Producto, Variante } from '../../servicios/producto.model';
+import { ResenaService } from '../../servicios/resena.service';
+import { AuthService } from '../../servicios/auth.service';
+import { Resena } from '../../servicios/resena.model';
 
 @Component({
   selector: 'app-producto-detalle',
@@ -17,6 +20,8 @@ export class ProductoDetalle implements OnInit {
   private route = inject(ActivatedRoute);
   private productoService = inject(ProductoService);
   private carritoService = inject(CarritoService);
+  private resenaService = inject(ResenaService);
+  private authService = inject(AuthService);
 
   producto = signal<Producto | null>(null);
   cargando = signal(true);
@@ -26,6 +31,19 @@ export class ProductoDetalle implements OnInit {
   colorSeleccionado = signal<string>('');
   medidaSeleccionada = signal<string>('');
   cantidad = signal(1);
+
+  // --- Reseñas ---
+  resenas = signal<Resena[]>([]);
+  cargandoResenas = signal(false);
+  enviandoResena = signal(false);
+  errorResena = signal<string | null>(null);
+  resenaExitosa = signal(false);
+
+  nuevaResena = {
+    calificacion: 5,
+    titulo: '',
+    comentario: '',
+  };
 
   coloresDisponibles = computed(() => {
     const p = this.producto();
@@ -115,6 +133,10 @@ export class ProductoDetalle implements OnInit {
           this.medidaSeleccionada.set(conStock.medida);
         }
         this.cargando.set(false);
+
+        if (encontrado._id) {
+          this.cargarResenas(encontrado._id);
+        }
       },
       error: (err) => {
         console.error('Error al cargar producto:', err);
@@ -190,5 +212,54 @@ export class ProductoDetalle implements OnInit {
       style: 'currency',
       currency: 'ARS',
     }).format(precio ?? 0);
+  }
+
+  // --- Reseñas ---
+
+  estaAutenticado(): boolean {
+    return this.authService.estaAutenticado();
+  }
+
+  estrellas(n: number): string {
+    return '⭐'.repeat(n);
+  }
+
+  cargarResenas(productoId: string): void {
+    this.cargandoResenas.set(true);
+    this.resenaService.getPorProducto(productoId).subscribe({
+      next: (resenas) => {
+        this.resenas.set(resenas);
+        this.cargandoResenas.set(false);
+      },
+      error: () => this.cargandoResenas.set(false),
+    });
+  }
+
+  enviarResena(): void {
+    const p = this.producto();
+    if (!p?._id) return;
+
+    this.errorResena.set(null);
+    this.enviandoResena.set(true);
+
+    this.resenaService
+      .crearResena({
+        productoId: p._id,
+        calificacion: this.nuevaResena.calificacion,
+        titulo: this.nuevaResena.titulo,
+        comentario: this.nuevaResena.comentario,
+      })
+      .subscribe({
+        next: () => {
+          this.enviandoResena.set(false);
+          this.resenaExitosa.set(true);
+          this.nuevaResena = { calificacion: 5, titulo: '', comentario: '' };
+          this.cargarResenas(p._id!);
+        },
+        error: (err) => {
+          this.enviandoResena.set(false);
+          this.errorResena.set(err.error?.error ?? 'No se pudo publicar la reseña');
+        },
+      });
   }
 }

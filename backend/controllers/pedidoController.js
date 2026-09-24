@@ -89,13 +89,14 @@ exports.obtenerPedidos = async (req, res) => {
 };
 
 // PUT /api/pedidos/:id/estado (admin)
+// PUT /api/pedidos/:id/estado (admin)
 exports.actualizarEstado = async (req, res) => {
   try {
     const { estado } = req.body;
     const pedido = await Pedido.findByIdAndUpdate(
       req.params.id,
       { estado },
-      { new: true, runValidators: true }
+      { returnDocument: 'after', runValidators: true }
     );
     if (!pedido) return res.status(404).json({ error: 'Pedido no encontrado' });
     res.json({ mensaje: 'Pedido actualizado', pedido });

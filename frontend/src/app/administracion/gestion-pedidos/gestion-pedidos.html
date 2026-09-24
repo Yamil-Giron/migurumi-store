@@ -1,1 +1,87 @@
-<p>gestion-pedidos works!</p>
+<app-admin-nav />
+
+<div class="admin-container">
+  <div class="admin-header">
+    <h1>Gestión de pedidos</h1>
+  </div>
+
+  <div *ngIf="cargando()" class="estado-mensaje">Cargando pedidos...</div>
+  <div *ngIf="error()" class="estado-mensaje error">{{ error() }}</div>
+  <div *ngIf="!cargando() && !error() && pedidos().length === 0" class="estado-mensaje">
+    Todavía no hay pedidos.
+  </div>
+
+  <div *ngFor="let pedido of pedidos()" class="pedido-admin-card">
+
+    <div class="pedido-admin-header">
+      <div class="pedido-admin-info">
+        <strong class="numero-pedido">{{ pedido.numeroPedido }}</strong>
+        <span class="fecha-pedido">{{ formatearFecha(pedido.createdAt) }}</span>
+      </div>
+      <span class="total-pedido">{{ formatearPrecio(pedido.total) }}</span>
+    </div>
+
+    <div class="pedido-admin-cuerpo">
+
+      <div class="bloque cliente-bloque">
+        <span class="bloque-label">Cliente</span>
+        <strong>{{ pedido.clienteNombre }}</strong>
+        <span class="texto-suave">{{ pedido.clienteEmail }}</span>
+      </div>
+
+      <div class="bloque items-bloque">
+        <span class="bloque-label">Items</span>
+        <div *ngFor="let item of pedido.items">{{ item.cantidad }}x {{ item.nombre }}</div>
+      </div>
+
+      <div class="bloque estado-bloque">
+        <span class="bloque-label">Estado del pedido</span>
+        <select
+          [ngModel]="pedido.estado"
+          (ngModelChange)="cambiarEstadoPedido(pedido, $event)"
+          [disabled]="actualizandoId() === pedido._id"
+        >
+          <option *ngFor="let e of estadosPedido" [value]="e.valor">{{ e.label }}</option>
+          <option value="enviado" [disabled]="true">Enviado</option>
+          <option value="entregado" [disabled]="true">Entregado</option>
+        </select>
+      </div>
+
+      <div class="bloque envio-bloque">
+        <span class="bloque-label">Envío</span>
+
+        <ng-container *ngIf="envioDe(pedido) as envio; else sinEnvio">
+          <span [class]="claseEstado(envio.estado)">{{ envio.estado }}</span>
+          <strong>{{ envio.transportista }}</strong>
+          <span class="tracking">{{ envio.numeroSeguimiento }}</span>
+          <select
+            [ngModel]="envio.estado"
+            (ngModelChange)="cambiarEstadoEnvio(envio, $event)"
+            [disabled]="actualizandoId() === envio._id"
+          >
+            <option *ngFor="let e of estadosEnvio" [value]="e.valor">{{ e.label }}</option>
+          </select>
+        </ng-container>
+
+        <ng-template #sinEnvio>
+          <div class="envio-inputs" *ngIf="pedido.estado !== 'cancelado'">
+            <select #transp>
+              <option value="">Transportista</option>
+              <option *ngFor="let t of transportistas" [value]="t">{{ t }}</option>
+            </select>
+            <input #num type="text" placeholder="N° de seguimiento" />
+            <button
+              type="button"
+              class="btn-mini"
+              (click)="crearEnvio(pedido, transp.value, num.value)"
+              [disabled]="actualizandoId() === pedido._id"
+            >
+              Despachar
+            </button>
+          </div>
+        </ng-template>
+      </div>
+
+    </div>
+  </div>
+</div>

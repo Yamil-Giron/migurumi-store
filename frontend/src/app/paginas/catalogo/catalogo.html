@@ -39,28 +39,6 @@
 
   <!-- Grid de productos -->
   <div *ngIf="!cargando() && !error() && productosFiltrados().length > 0" class="productos-grid">
-    <div *ngFor="let producto of productosFiltrados()" class="producto-card">
-      <img [src]="producto.imagenesUrl?.[0] || 'assets/placeholder.png'" [alt]="producto.nombre" />
-      <h3>{{ producto.nombre }}</h3>
-      <p class="categoria">{{ nombreCategoria(producto) }}</p>
-      <p class="descripcion">{{ producto.descripcion | slice:0:100 }}...</p>
-      <p class="precio">{{ formatearPrecio(producto.precio) }}</p>
-
-      <a
-        *ngIf="producto.variantes && producto.variantes.length > 0"
-        [routerLink]="['/producto', producto.slug]"
-        class="btn-ver-detalle"
-      >
-        Ver opciones
-      </a>
-
-      <button
-        *ngIf="!producto.variantes || producto.variantes.length === 0"
-        (click)="agregarAlCarrito(producto)"
-        class="btn-agregar"
-      >
-        Agregar al carrito
-      </button>
-    </div>
+  <app-producto-card *ngFor="let producto of productosFiltrados()" [producto]="producto" />
   </div>
 </div>

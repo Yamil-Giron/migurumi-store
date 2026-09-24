@@ -44,6 +44,9 @@
       <div class="rol-badge" [class.admin]="u.rol === 'administrador'">
         {{ u.rol === 'administrador' ? '👑 Administrador' : '👤 Cliente' }}
       </div>
+      <a routerLink="/mis-pedidos" class="btn btn-outline btn-block mt-2">
+  🛍️ Ver mis compras
+      </a>
     </aside>
 
     <!-- ===== Columna derecha: datos editables ===== -->
